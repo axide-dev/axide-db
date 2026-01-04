@@ -1,13 +1,9 @@
 'use client';
 
-import * as React from 'react';
 import { AccessibilitySearch } from '~/components/AccessibilitySearch';
-import { AddEntryForm } from '~/components/AddEntryForm';
-import { Button } from '~/components/ui/button';
+import { AddEntryModal } from '~/components/AddEntryModal';
 
 export default function Page() {
-    const [showAddForm, setShowAddForm] = React.useState(false);
-
     return (
         <main className="flex min-h-screen flex-col items-center px-4 py-8">
             {/* Header with Red Link */}
@@ -27,24 +23,12 @@ export default function Page() {
 
             {/* Action Button */}
             <div className="mb-8">
-                <Button
-                    onClick={() => setShowAddForm(!showAddForm)}
-                    variant={showAddForm ? 'outline' : 'default'}
-                    size="lg"
-                >
-                    {showAddForm ? '← Back to Search' : '+ Add New Entry'}
-                </Button>
+                <AddEntryModal />
             </div>
 
             {/* Content */}
             <div className="w-full max-w-6xl">
-                {showAddForm ? (
-                    <div className="flex justify-center">
-                        <AddEntryForm onSuccess={() => setShowAddForm(false)} />
-                    </div>
-                ) : (
-                    <AccessibilitySearch />
-                )}
+                <AccessibilitySearch />
             </div>
 
             {/* Footer */}
