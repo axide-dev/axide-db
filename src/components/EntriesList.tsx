@@ -103,7 +103,7 @@ function AccessibilityBadges({
     );
 }
 
-function EntryCard({ entry }: { entry: Doc<'accessibilityEntries'> }) {
+function EntryCard({ entry }: { entry: any }) {
     return (
         <Link href={`/entry/${entry._id}`}>
             <Card className="hover:ring-primary/50 h-full cursor-pointer transition-all hover:ring-2">
@@ -112,8 +112,12 @@ function EntryCard({ entry }: { entry: Doc<'accessibilityEntries'> }) {
                         <CardTitle className="line-clamp-1 text-lg">
                             {entry.name}
                         </CardTitle>
-                        <Badge className={categoryColors[entry.category]}>
-                            {categoryLabels[entry.category]}
+                        <Badge
+                            className={
+                                categoryColors[entry.category as Category]
+                            }
+                        >
+                            {categoryLabels[entry.category as Category]}
                         </Badge>
                     </div>
                     <RatingStars rating={entry.overallRating} />
@@ -140,7 +144,7 @@ function EntryCard({ entry }: { entry: Doc<'accessibilityEntries'> }) {
 
                     {entry.tags.length > 0 && (
                         <div className="flex flex-wrap gap-1">
-                            {entry.tags.slice(0, 3).map((tag) => (
+                            {entry.tags.slice(0, 3).map((tag: string) => (
                                 <Badge
                                     key={tag}
                                     variant="secondary"
@@ -169,7 +173,7 @@ function EntryCard({ entry }: { entry: Doc<'accessibilityEntries'> }) {
 }
 
 interface EntriesListProps {
-    initialEntries: Doc<'accessibilityEntries'>[];
+    initialEntries: any[];
 }
 
 export function EntriesList({ initialEntries }: EntriesListProps) {

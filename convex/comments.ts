@@ -1,26 +1,127 @@
 import { v } from 'convex/values';
 import { query, mutation } from './_generated/server';
 
+// Entry type validator
+const entryType = v.union(
+    v.literal('game'),
+    v.literal('hardware'),
+    v.literal('place'),
+    v.literal('software'),
+    v.literal('service')
+);
+
 // Get comments for an entry
 export const getCommentsForEntry = query({
-    args: { entryId: v.id('accessibilityEntries') },
+    args: {
+        entryType: entryType,
+        gameId: v.optional(v.id('games')),
+        hardwareId: v.optional(v.id('hardware')),
+        placeId: v.optional(v.id('places')),
+        softwareId: v.optional(v.id('software')),
+        serviceId: v.optional(v.id('services'))
+    },
     handler: async (ctx, args) => {
-        return await ctx.db
-            .query('comments')
-            .withIndex('by_entry', (q) => q.eq('entryId', args.entryId))
-            .order('desc')
-            .collect();
+        switch (args.entryType) {
+            case 'game':
+                if (!args.gameId) return [];
+                return await ctx.db
+                    .query('comments')
+                    .withIndex('by_game', (q) => q.eq('gameId', args.gameId))
+                    .order('desc')
+                    .collect();
+            case 'hardware':
+                if (!args.hardwareId) return [];
+                return await ctx.db
+                    .query('comments')
+                    .withIndex('by_hardware', (q) =>
+                        q.eq('hardwareId', args.hardwareId)
+                    )
+                    .order('desc')
+                    .collect();
+            case 'place':
+                if (!args.placeId) return [];
+                return await ctx.db
+                    .query('comments')
+                    .withIndex('by_place', (q) => q.eq('placeId', args.placeId))
+                    .order('desc')
+                    .collect();
+            case 'software':
+                if (!args.softwareId) return [];
+                return await ctx.db
+                    .query('comments')
+                    .withIndex('by_software', (q) =>
+                        q.eq('softwareId', args.softwareId)
+                    )
+                    .order('desc')
+                    .collect();
+            case 'service':
+                if (!args.serviceId) return [];
+                return await ctx.db
+                    .query('comments')
+                    .withIndex('by_service', (q) =>
+                        q.eq('serviceId', args.serviceId)
+                    )
+                    .order('desc')
+                    .collect();
+        }
     }
 });
 
 // Get comment count for an entry
 export const getCommentCount = query({
-    args: { entryId: v.id('accessibilityEntries') },
+    args: {
+        entryType: entryType,
+        gameId: v.optional(v.id('games')),
+        hardwareId: v.optional(v.id('hardware')),
+        placeId: v.optional(v.id('places')),
+        softwareId: v.optional(v.id('software')),
+        serviceId: v.optional(v.id('services'))
+    },
     handler: async (ctx, args) => {
-        const comments = await ctx.db
-            .query('comments')
-            .withIndex('by_entry', (q) => q.eq('entryId', args.entryId))
-            .collect();
+        let comments: unknown[] = [];
+        switch (args.entryType) {
+            case 'game':
+                if (!args.gameId) return 0;
+                comments = await ctx.db
+                    .query('comments')
+                    .withIndex('by_game', (q) => q.eq('gameId', args.gameId))
+                    .collect();
+                break;
+            case 'hardware':
+                if (!args.hardwareId) return 0;
+                comments = await ctx.db
+                    .query('comments')
+                    .withIndex('by_hardware', (q) =>
+                        q.eq('hardwareId', args.hardwareId)
+                    )
+                    .collect();
+                break;
+            case 'place':
+                if (!args.placeId) return 0;
+                comments = await ctx.db
+                    .query('comments')
+                    .withIndex('by_place', (q) => q.eq('placeId', args.placeId))
+                    .collect();
+                break;
+            case 'software':
+                if (!args.softwareId) return 0;
+                comments = await ctx.db
+                    .query('comments')
+                    .withIndex('by_software', (q) =>
+                        q.eq('softwareId', args.softwareId)
+                    )
+                    .collect();
+                break;
+            case 'service':
+                if (!args.serviceId) return 0;
+                comments = await ctx.db
+                    .query('comments')
+                    .withIndex('by_service', (q) =>
+                        q.eq('serviceId', args.serviceId)
+                    )
+                    .collect();
+                break;
+        }
         return comments.length;
     }
 });
@@ -28,7 +129,12 @@ export const getCommentCount = query({
 // Add a comment (requires authentication)
 export const addComment = mutation({
     args: {
-        entryId: v.id('accessibilityEntries'),
+        entryType: entryType,
+        gameId: v.optional(v.id('games')),
+        hardwareId: v.optional(v.id('hardware')),
+        placeId: v.optional(v.id('places')),
+        softwareId: v.optional(v.id('software')),
+        serviceId: v.optional(v.id('services')),
         content: v.string()
     },
     handler: async (ctx, args) => {
@@ -43,7 +149,12 @@ export const addComment = mutation({
         }
 
         return await ctx.db.insert('comments', {
-            entryId: args.entryId,
+            entryType: args.entryType,
+            gameId: args.gameId,
+            hardwareId: args.hardwareId,
+            placeId: args.placeId,
+            softwareId: args.softwareId,
+            serviceId: args.serviceId,
             userId: identity.subject,
             userName: identity.name ?? undefined,
             userImage: identity.pictureUrl ?? undefined,
