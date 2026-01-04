@@ -65,41 +65,56 @@ function AccessibilityBadges({
     visual,
     auditory,
     motor,
-    cognitive
+    cognitive,
+    isEntryComplete
 }: {
     visual?: number;
     auditory?: number;
     motor?: number;
     cognitive?: number;
+    isEntryComplete: boolean;
 }) {
     const badges = [
-        { label: '👁️ Visual', value: visual },
-        { label: '👂 Auditory', value: auditory },
-        { label: '🖐️ Motor', value: motor },
-        { label: '🧠 Cognitive', value: cognitive }
-    ].filter((b) => b.value !== undefined);
-
-    if (badges.length === 0) return null;
+        { label: '👁️', fullLabel: 'Visual', value: visual },
+        { label: '👂', fullLabel: 'Auditory', value: auditory },
+        { label: '🖐️', fullLabel: 'Motor', value: motor },
+        { label: '🧠', fullLabel: 'Cognitive', value: cognitive }
+    ];
 
     return (
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
             {badges.map((badge) => (
-                <Badge key={badge.label} variant="outline" className="text-xs">
-                    {badge.label}: {badge.value}/5
+                <Badge
+                    key={badge.fullLabel}
+                    variant="outline"
+                    className={`text-xs ${badge.value === undefined ? 'opacity-50' : ''}`}
+                >
+                    {badge.label}{' '}
+                    {badge.value !== undefined ? `${badge.value}/5` : '?'}
                 </Badge>
             ))}
+            <Badge
+                variant="outline"
+                className={`text-xs ${isEntryComplete ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}
+            >
+                {isEntryComplete ? 'Complete' : 'Incomplete'}
+            </Badge>
         </div>
     );
 }
 
-export function AccessibilitySearch() {
+export function AccessibilitySearch({
+    selectedEntryId,
+    onSelectEntry
+}: {
+    selectedEntryId: Id<'accessibilityEntries'> | null;
+    onSelectEntry: (id: Id<'accessibilityEntries'> | null) => void;
+}) {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [selectedCategory, setSelectedCategory] = React.useState<
         Category | 'all'
     >('all');
     const [debouncedQuery, setDebouncedQuery] = React.useState('');
-    const [selectedEntryId, setSelectedEntryId] =
-        React.useState<Id<'accessibilityEntries'> | null>(null);
 
     // Debounce search query
     React.useEffect(() => {
@@ -134,7 +149,7 @@ export function AccessibilitySearch() {
         return (
             <EntryDetail
                 entryId={selectedEntryId}
-                onBack={() => setSelectedEntryId(null)}
+                onBack={() => onSelectEntry(null)}
             />
         );
     }
@@ -183,7 +198,7 @@ export function AccessibilitySearch() {
                         <Card
                             key={entry._id}
                             className="hover:ring-primary/50 cursor-pointer transition-all hover:ring-2"
-                            onClick={() => setSelectedEntryId(entry._id)}
+                            onClick={() => onSelectEntry(entry._id)}
                         >
                             <CardHeader>
                                 <div className="flex items-start justify-between gap-2">
@@ -210,6 +225,19 @@ export function AccessibilitySearch() {
                                     auditory={entry.auditoryAccessibility}
                                     motor={entry.motorAccessibility}
                                     cognitive={entry.cognitiveAccessibility}
+                                    isEntryComplete={
+                                        // Check all fields for completeness
+                                        entry.name.trim() !== '' &&
+                                        entry.description.trim() !== '' &&
+                                        entry.visualAccessibility !==
+                                            undefined &&
+                                        entry.auditoryAccessibility !==
+                                            undefined &&
+                                        entry.motorAccessibility !==
+                                            undefined &&
+                                        entry.cognitiveAccessibility !==
+                                            undefined
+                                    }
                                 />
 
                                 {entry.tags.length > 0 && (

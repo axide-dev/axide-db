@@ -1,9 +1,14 @@
 'use client';
 
+import * as React from 'react';
 import { AccessibilitySearch } from '~/components/AccessibilitySearch';
 import { AddEntryModal } from '~/components/AddEntryModal';
+import type { Id } from '../../convex/_generated/dataModel';
 
 export default function Page() {
+    const [selectedEntryId, setSelectedEntryId] =
+        React.useState<Id<'accessibilityEntries'> | null>(null);
+
     return (
         <main className="flex min-h-screen flex-col items-center px-4 py-8">
             {/* Header with Red Link */}
@@ -23,12 +28,15 @@ export default function Page() {
 
             {/* Action Button */}
             <div className="mb-8">
-                <AddEntryModal />
+                <AddEntryModal onSelectEntry={setSelectedEntryId} />
             </div>
 
             {/* Content */}
             <div className="w-full max-w-6xl">
-                <AccessibilitySearch />
+                <AccessibilitySearch
+                    selectedEntryId={selectedEntryId}
+                    onSelectEntry={setSelectedEntryId}
+                />
             </div>
 
             {/* Footer */}

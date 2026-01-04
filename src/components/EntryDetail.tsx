@@ -61,13 +61,17 @@ function RatingStars({
 function AccessibilityRatingBar({
     label,
     icon,
-    value
+    value,
+    showUnknown = true
 }: {
     label: string;
     icon: string;
     value?: number;
+    showUnknown?: boolean;
 }) {
-    if (value === undefined) return null;
+    const isUnknown = value === undefined;
+
+    if (isUnknown && !showUnknown) return null;
 
     return (
         <div className="flex items-center gap-3">
@@ -75,15 +79,25 @@ function AccessibilityRatingBar({
             <div className="flex-1">
                 <div className="flex items-center justify-between">
                     <span className="text-sm font-medium">{label}</span>
-                    <span className="text-muted-foreground text-sm">
-                        {value}/5
+                    <span
+                        className={`text-sm ${isUnknown ? 'text-muted-foreground italic' : 'text-muted-foreground'}`}
+                    >
+                        {isUnknown ? 'Unknown' : `${value}/5`}
                     </span>
                 </div>
                 <div className="bg-muted mt-1 h-2 overflow-hidden rounded-full">
-                    <div
-                        className="bg-primary h-full rounded-full transition-all"
-                        style={{ width: `${(value / 5) * 100}%` }}
-                    />
+                    {isUnknown ? (
+                        <div className="bg-muted-foreground/30 h-full w-full rounded-full flex items-center justify-center">
+                            <span className="text-[8px] text-muted-foreground">
+                                ?
+                            </span>
+                        </div>
+                    ) : (
+                        <div
+                            className="bg-primary h-full rounded-full transition-all"
+                            style={{ width: `${(value / 5) * 100}%` }}
+                        />
+                    )}
                 </div>
             </div>
         </div>
@@ -129,9 +143,40 @@ export function EntryDetail({ entryId, onBack }: EntryDetailProps) {
                 <CardHeader>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex flex-col gap-2">
-                            <Badge className={categoryColors[entry.category]}>
-                                {categoryLabels[entry.category]}
-                            </Badge>
+                            <div className="flex items-center gap-2">
+                                <Badge
+                                    className={categoryColors[entry.category]}
+                                >
+                                    {categoryLabels[entry.category]}
+                                </Badge>
+                                {(() => {
+                                    const isComplete =
+                                        entry.name.trim() !== '' &&
+                                        entry.description.trim() !== '' &&
+                                        entry.visualAccessibility !==
+                                            undefined &&
+                                        entry.auditoryAccessibility !==
+                                            undefined &&
+                                        entry.motorAccessibility !==
+                                            undefined &&
+                                        entry.cognitiveAccessibility !==
+                                            undefined;
+
+                                    return (
+                                        <Badge
+                                            className={
+                                                isComplete
+                                                    ? 'bg-green-500/20 text-green-400'
+                                                    : 'bg-yellow-500/20 text-yellow-400'
+                                            }
+                                        >
+                                            {isComplete
+                                                ? 'Complete'
+                                                : 'Incomplete'}
+                                        </Badge>
+                                    );
+                                })()}
+                            </div>
                             <CardTitle className="text-2xl sm:text-3xl">
                                 {entry.name}
                             </CardTitle>

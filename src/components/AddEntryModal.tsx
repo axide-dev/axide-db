@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useMutation, useQuery } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
@@ -89,6 +90,55 @@ function RatingInput({
     );
 }
 
+// Rating input with "I don't know" option for optional accessibility ratings
+// Returns: undefined = "I don't know", 1-5 = actual rating
+function OptionalRatingInput({
+    value,
+    onChange,
+    label
+}: {
+    value: number | undefined;
+    onChange: (value: number | undefined) => void;
+    label: string;
+}) {
+    const isUnknown = value === undefined;
+
+    return (
+        <div className="flex flex-col gap-2">
+            <Label>{label}</Label>
+            <div className="flex items-center gap-2">
+                <div className="flex gap-1">
+                    {[1, 2, 3, 4, 5].map((star) => (
+                        <button
+                            key={star}
+                            type="button"
+                            onClick={() => onChange(star)}
+                            className={`text-2xl transition-colors ${
+                                !isUnknown && star <= (value ?? 0)
+                                    ? 'text-yellow-400'
+                                    : 'text-gray-600 hover:text-yellow-300'
+                            }`}
+                        >
+                            ★
+                        </button>
+                    ))}
+                </div>
+                <button
+                    type="button"
+                    onClick={() => onChange(undefined)}
+                    className={`ml-2 rounded-md px-2 py-1 text-xs font-medium transition-colors ${
+                        isUnknown
+                            ? 'bg-muted-foreground/20 text-foreground'
+                            : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                    }`}
+                >
+                    I don't know
+                </button>
+            </div>
+        </div>
+    );
+}
+
 function SimilarEntryCard({
     entry,
     onSelect
@@ -119,7 +169,13 @@ function SimilarEntryCard({
     );
 }
 
-export function AddEntryModal({ onSuccess }: { onSuccess?: () => void }) {
+export function AddEntryModal({
+    onSuccess,
+    onSelectEntry
+}: {
+    onSuccess?: () => void;
+    onSelectEntry?: (id: Id<'accessibilityEntries'>) => void;
+}) {
     const { isSignedIn } = useUser();
     const createEntry = useMutation(api.entries.createEntry);
 
@@ -386,8 +442,12 @@ export function AddEntryModal({ onSuccess }: { onSuccess?: () => void }) {
                                                         key={entry._id}
                                                         entry={entry}
                                                         onSelect={() => {
-                                                            // User can view existing entry or continue adding
-                                                            // For now, just acknowledge they've seen it
+                                                            if (onSelectEntry) {
+                                                                onSelectEntry(
+                                                                    entry._id as Id<'accessibilityEntries'>
+                                                                );
+                                                                setOpen(false);
+                                                            }
                                                         }}
                                                     />
                                                 ))}
@@ -439,29 +499,31 @@ export function AddEntryModal({ onSuccess }: { onSuccess?: () => void }) {
                             />
 
                             <div className="grid gap-4 sm:grid-cols-2">
-                                <RatingInput
+                                <OptionalRatingInput
                                     label="👁️ Visual Accessibility"
-                                    value={visualAccessibility ?? 0}
+                                    value={visualAccessibility}
                                     onChange={setVisualAccessibility}
                                 />
-                                <RatingInput
+                                <OptionalRatingInput
                                     label="👂 Auditory Accessibility"
-                                    value={auditoryAccessibility ?? 0}
+                                    value={auditoryAccessibility}
                                     onChange={setAuditoryAccessibility}
                                 />
-                                <RatingInput
+                                <OptionalRatingInput
                                     label="🖐️ Motor Accessibility"
-                                    value={motorAccessibility ?? 0}
+                                    value={motorAccessibility}
                                     onChange={setMotorAccessibility}
                                 />
-                                <RatingInput
+                                <OptionalRatingInput
                                     label="🧠 Cognitive Accessibility"
-                                    value={cognitiveAccessibility ?? 0}
+                                    value={cognitiveAccessibility}
                                     onChange={setCognitiveAccessibility}
                                 />
                             </div>
+
                             <p className="text-muted-foreground text-xs">
-                                Leave ratings at 0 stars if not applicable
+                                Click "I don't know" if you're unsure about a
+                                specific accessibility type
                             </p>
                         </div>
                     )}
