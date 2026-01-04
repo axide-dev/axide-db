@@ -149,7 +149,7 @@ export const getEntries = query({
         return allEntries
             .sort((a, b) => b.createdAt - a.createdAt)
             .slice(0, limit);
-    },
+    }
 });
 
 // Search entries by name across all tables
