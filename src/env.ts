@@ -10,6 +10,7 @@ export const env = createEnv({
     NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
     CLERK_API_KEY: z.string(),
     CLERK_FRONTEND_API_URL: z.url(),
+    CLERK_JWT_ISSUER_DOMAIN: z.string().url(),
   },
 
   /**
@@ -29,6 +30,7 @@ export const env = createEnv({
     NODE_ENV: process.env.NODE_ENV,
     CLERK_API_KEY: process.env.CLERK_API_KEY,
     CLERK_FRONTEND_API_URL: process.env.CLERK_FRONTEND_API_URL,
+    CLERK_JWT_ISSUER_DOMAIN: process.env.CLERK_JWT_ISSUER_DOMAIN,
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
