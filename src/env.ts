@@ -7,10 +7,13 @@ export const env = createEnv({
    * isn't built with invalid env vars.
    */
   server: {
-    NODE_ENV: z.enum(["development", "test", "production"]).default("development"),
+    NODE_ENV: z
+      .enum(["development", "test", "production"])
+      .default("development"),
     CLERK_API_KEY: z.string(),
     CLERK_FRONTEND_API_URL: z.url(),
-    CLERK_JWT_ISSUER_DOMAIN: z.string().url(),
+    CLERK_JWT_ISSUER_DOMAIN: z.url(),
+    CONVEX_DEPLOYMENT: z.string(),
   },
 
   /**
@@ -20,6 +23,7 @@ export const env = createEnv({
    */
   client: {
     NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: z.string(),
+    NEXT_PUBLIC_CONVEX_URL: z.url(),
   },
 
   /**
@@ -31,7 +35,10 @@ export const env = createEnv({
     CLERK_API_KEY: process.env.CLERK_API_KEY,
     CLERK_FRONTEND_API_URL: process.env.CLERK_FRONTEND_API_URL,
     CLERK_JWT_ISSUER_DOMAIN: process.env.CLERK_JWT_ISSUER_DOMAIN,
-    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY: process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
+    CONVEX_DEPLOYMENT: process.env.CONVEX_DEPLOYMENT,
+    NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
+    NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
+      process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY,
     // NEXT_PUBLIC_CLIENTVAR: process.env.NEXT_PUBLIC_CLIENTVAR,
   },
   /**
