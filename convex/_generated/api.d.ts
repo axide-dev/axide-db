@@ -8,20 +8,20 @@
  * @module
  */
 
-import type * as comments from "../comments.js";
-import type * as entries from "../entries.js";
-import type * as reviews from "../reviews.js";
+import type * as comments from '../comments.js';
+import type * as entries from '../entries.js';
+import type * as reviews from '../reviews.js';
 
 import type {
-  ApiFromModules,
-  FilterApi,
-  FunctionReference,
-} from "convex/server";
+    ApiFromModules,
+    FilterApi,
+    FunctionReference
+} from 'convex/server';
 
 declare const fullApi: ApiFromModules<{
-  comments: typeof comments;
-  entries: typeof entries;
-  reviews: typeof reviews;
+    comments: typeof comments;
+    entries: typeof entries;
+    reviews: typeof reviews;
 }>;
 
 /**
@@ -33,8 +33,8 @@ declare const fullApi: ApiFromModules<{
  * ```
  */
 export declare const api: FilterApi<
-  typeof fullApi,
-  FunctionReference<any, "public">
+    typeof fullApi,
+    FunctionReference<any, 'public'>
 >;
 
 /**
@@ -46,8 +46,8 @@ export declare const api: FilterApi<
  * ```
  */
 export declare const internal: FilterApi<
-  typeof fullApi,
-  FunctionReference<any, "internal">
+    typeof fullApi,
+    FunctionReference<any, 'internal'>
 >;
 
 export declare const components: {};
