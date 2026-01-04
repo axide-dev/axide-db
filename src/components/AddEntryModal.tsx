@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '../../convex/_generated/api';
@@ -170,12 +171,11 @@ function SimilarEntryCard({
 }
 
 export function AddEntryModal({
-    onSuccess,
-    onSelectEntry
+    onSuccess
 }: {
     onSuccess?: () => void;
-    onSelectEntry?: (id: Id<'accessibilityEntries'>) => void;
-}) {
+} = {}) {
+    const router = useRouter();
     const { isSignedIn } = useUser();
     const createEntry = useMutation(api.entries.createEntry);
 
@@ -442,12 +442,10 @@ export function AddEntryModal({
                                                         key={entry._id}
                                                         entry={entry}
                                                         onSelect={() => {
-                                                            if (onSelectEntry) {
-                                                                onSelectEntry(
-                                                                    entry._id as Id<'accessibilityEntries'>
-                                                                );
-                                                                setOpen(false);
-                                                            }
+                                                            setOpen(false);
+                                                            router.push(
+                                                                `/entry/${entry._id}`
+                                                            );
                                                         }}
                                                     />
                                                 ))}
