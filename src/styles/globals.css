@@ -11,10 +11,11 @@
         --font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
         --font-mono: 'JetBrains Mono', ui-monospace, monospace;
 
-        /* Axide Colors */
+        /* Axide Colors - Original Brand Colors */
         --color-axide-black: #0B0B10;
         --color-axide-surface: #12121A;
         --color-axide-outline: #242433;
+        --color-axide-outline-contrast: #3D3D4D;
         --color-axide-text: #F5F6FA;
         --color-axide-text-secondary: #B9BBC7;
         --color-axide-cyan: #2DE2E6;
@@ -22,6 +23,12 @@
         --color-axide-lavender: #A78BFA;
         --color-axide-mint: #5EF0B6;
         --color-axide-peach: #FFB3A7;
+/* WCAG AA Compliant Category Colors (4.5:1+ contrast on dark backgrounds) */
+    --color-category-game: #C4B5FD;
+    --color-category-hardware: #5EEAD4;
+    --color-category-place: #86EFAC;
+    --color-category-software: #FED7AA;
+    --color-category-service: #F9A8D4;
 }
 
 /* Axide Dark Theme - Default */

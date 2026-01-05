@@ -25,12 +25,13 @@ const categoryLabels: Record<Category, string> = {
     service: '🛎️ Services'
 };
 
+// Higher contrast colors for WCAG AA compliance (4.5:1 minimum)
 const categoryColors: Record<Category, string> = {
-    game: 'bg-purple-500/20 text-purple-400',
-    hardware: 'bg-blue-500/20 text-blue-400',
-    place: 'bg-green-500/20 text-green-400',
-    software: 'bg-orange-500/20 text-orange-400',
-    service: 'bg-pink-500/20 text-pink-400'
+    game: 'bg-[#C4B5FD]/20 text-[#C4B5FD]',
+    hardware: 'bg-[#5EEAD4]/20 text-[#5EEAD4]',
+    place: 'bg-[#86EFAC]/20 text-[#86EFAC]',
+    software: 'bg-[#FED7AA]/20 text-[#FED7AA]',
+    service: 'bg-[#F9A8D4]/20 text-[#F9A8D4]'
 };
 
 function RatingStars({
@@ -42,16 +43,24 @@ function RatingStars({
 }) {
     const starClass = size === 'lg' ? 'text-2xl' : 'text-base';
     return (
-        <div className="flex items-center gap-0.5">
+        <div
+            className="flex items-center gap-0.5"
+            role="img"
+            aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}
+        >
             {[1, 2, 3, 4, 5].map((star) => (
                 <span
                     key={star}
-                    className={`${starClass} ${star <= rating ? 'text-yellow-400' : 'text-gray-600'}`}
+                    aria-hidden="true"
+                    className={`${starClass} ${star <= rating ? 'text-[#5EEAD4]' : 'text-[#3D3D4D]'}`}
                 >
                     ★
                 </span>
             ))}
-            <span className="text-muted-foreground ml-2 text-sm">
+            <span
+                className="text-muted-foreground ml-2 text-sm"
+                aria-hidden="true"
+            >
                 {rating.toFixed(1)} / 5
             </span>
         </div>

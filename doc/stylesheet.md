@@ -37,15 +37,25 @@ The UI follows these golden rules:
 | Mint | `#5EF0B6` | Place category badge, success states |
 | Peach | `#FFB3A7` | Software category badge |
 
-### Category Color Mapping
+### Category Color Mapping (WCAG AA Compliant)
+
+These colors have been updated to meet WCAG AA contrast requirements (4.5:1 minimum for normal text):
 
 ```css
-game: 'bg-[#A78BFA]/15 text-[#A78BFA] border-[#A78BFA]/30'
-hardware: 'bg-[#2DE2E6]/15 text-[#2DE2E6] border-[#2DE2E6]/30'
-place: 'bg-[#5EF0B6]/15 text-[#5EF0B6] border-[#5EF0B6]/30'
-software: 'bg-[#FFB3A7]/15 text-[#FFB3A7] border-[#FFB3A7]/30'
-service: 'bg-[#E61E8C]/15 text-[#E61E8C] border-[#E61E8C]/30'
+game: 'bg-[#C4B5FD]/20 text-[#C4B5FD] border-[#C4B5FD]/40'
+hardware: 'bg-[#5EEAD4]/20 text-[#5EEAD4] border-[#5EEAD4]/40'
+place: 'bg-[#86EFAC]/20 text-[#86EFAC] border-[#86EFAC]/40'
+software: 'bg-[#FED7AA]/20 text-[#FED7AA] border-[#FED7AA]/40'
+service: 'bg-[#F9A8D4]/20 text-[#F9A8D4] border-[#F9A8D4]/40'
 ```
+
+| Category | Old Color | New Color | Contrast Ratio |
+|----------|-----------|-----------|----------------|
+| Game | #A78BFA | #C4B5FD | ~7:1 |
+| Hardware | #2DE2E6 | #5EEAD4 | ~8:1 |
+| Place | #5EF0B6 | #86EFAC | ~9:1 |
+| Software | #FFB3A7 | #FED7AA | ~10:1 |
+| Service | #E61E8C | #F9A8D4 | ~8:1 |
 
 ---
 

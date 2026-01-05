@@ -26,12 +26,13 @@ const categoryLabels: Record<Category, string> = {
     service: '🛎️ Services'
 };
 
+// Higher contrast colors for WCAG AA compliance (4.5:1 minimum)
 const categoryColors: Record<Category, string> = {
-    game: 'bg-[#A78BFA]/15 text-[#A78BFA] border border-[#A78BFA]/30',
-    hardware: 'bg-[#2DE2E6]/15 text-[#2DE2E6] border border-[#2DE2E6]/30',
-    place: 'bg-[#5EF0B6]/15 text-[#5EF0B6] border border-[#5EF0B6]/30',
-    software: 'bg-[#FFB3A7]/15 text-[#FFB3A7] border border-[#FFB3A7]/30',
-    service: 'bg-[#E61E8C]/15 text-[#E61E8C] border border-[#E61E8C]/30'
+    game: 'bg-[#C4B5FD]/20 text-[#C4B5FD] border border-[#C4B5FD]/40',
+    hardware: 'bg-[#5EEAD4]/20 text-[#5EEAD4] border border-[#5EEAD4]/40',
+    place: 'bg-[#86EFAC]/20 text-[#86EFAC] border border-[#86EFAC]/40',
+    software: 'bg-[#FED7AA]/20 text-[#FED7AA] border border-[#FED7AA]/40',
+    service: 'bg-[#F9A8D4]/20 text-[#F9A8D4] border border-[#F9A8D4]/40'
 };
 
 function RatingStars({
@@ -43,16 +44,21 @@ function RatingStars({
 }) {
     const starClass = size === 'lg' ? 'text-2xl' : 'text-base';
     return (
-        <div className="flex items-center gap-0.5">
+        <div
+            className="flex items-center gap-0.5"
+            role="img"
+            aria-label={`Rating: ${rating.toFixed(1)} out of 5 stars`}
+        >
             {[1, 2, 3, 4, 5].map((star) => (
                 <span
                     key={star}
-                    className={`${starClass} ${star <= rating ? 'text-[#2DE2E6]' : 'text-[#242433]'}`}
+                    aria-hidden="true"
+                    className={`${starClass} ${star <= rating ? 'text-[#5EEAD4]' : 'text-[#3D3D4D]'}`}
                 >
                     ★
                 </span>
             ))}
-            <span className="ml-2 text-sm text-[#B9BBC7]">
+            <span className="ml-2 text-sm text-[#D1D5DB]" aria-hidden="true">
                 {rating.toFixed(1)} / 5
             </span>
         </div>

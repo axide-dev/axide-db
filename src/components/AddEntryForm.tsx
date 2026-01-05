@@ -332,7 +332,10 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                                     setCategory(v as Category)
                                 }
                             >
-                                <SelectTrigger>
+                                <SelectTrigger
+                                    id="category"
+                                    aria-label="Select category"
+                                >
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>

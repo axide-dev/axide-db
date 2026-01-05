@@ -100,7 +100,8 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                     {comments && (
                         <Badge
                             variant="secondary"
-                            className="bg-[#2DE2E6]/15 text-[#2DE2E6]"
+                            className="bg-[#5EEAD4]/20 text-[#5EEAD4]"
+                            aria-label={`${comments.length} comments`}
                         >
                             {comments.length}
                         </Badge>
