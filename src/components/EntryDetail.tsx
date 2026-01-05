@@ -14,6 +14,7 @@ import {
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Comments } from '~/components/Comments';
+import { SkeletonEntryDetail } from '~/components/ui/skeleton';
 
 type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
 
@@ -120,19 +121,14 @@ interface EntryDetailProps {
         | Id<'places'>
         | Id<'software'>
         | Id<'services'>;
-    entryType: Category;
     onBack: () => void;
 }
 
-export function EntryDetail({ entryId, entryType, onBack }: EntryDetailProps) {
+export function EntryDetail({ entryId, onBack }: EntryDetailProps) {
     const entry = useQuery(api.entries.getEntry, { id: entryId });
 
     if (entry === undefined) {
-        return (
-            <div className="flex items-center justify-center py-12">
-                <p className="text-muted-foreground">Loading...</p>
-            </div>
-        );
+        return <SkeletonEntryDetail />;
     }
 
     if (entry === null) {

@@ -19,8 +19,8 @@ export default function EntryNotFound() {
                     Entry Not Found
                 </h1>
                 <p className="max-w-md text-lg text-[#B9BBC7]">
-                    The accessibility entry you're looking for doesn't exist or
-                    may have been removed.
+                    The accessibility entry you&apos;re looking for doesn&apos;t
+                    exist or may have been removed.
                 </p>
                 <Link href="/">
                     <Button

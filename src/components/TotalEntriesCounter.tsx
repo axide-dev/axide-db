@@ -3,6 +3,7 @@
 import * as React from 'react';
 import { useQuery } from 'convex/react';
 import { api } from '../../convex/_generated/api';
+import { SkeletonCounter } from '~/components/ui/skeleton';
 
 function AnimatedDigit({
     digit,
@@ -92,11 +93,7 @@ export function TotalEntriesCounter() {
     const totalEntries = useQuery(api.entries.getTotalEntries);
 
     if (totalEntries === undefined) {
-        return (
-            <div className="flex flex-col items-center gap-4 py-8">
-                <div className="h-32 w-48 animate-pulse rounded-2xl bg-[#242433]" />
-            </div>
-        );
+        return <SkeletonCounter />;
     }
 
     return (

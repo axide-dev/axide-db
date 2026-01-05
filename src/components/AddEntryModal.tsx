@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useMutation, useQuery } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
@@ -133,7 +134,7 @@ function OptionalRatingInput({
                             : 'bg-[#242433] text-[#B9BBC7] hover:bg-[#242433]/80'
                     }`}
                 >
-                    I don't know
+                    I don&apos;t know
                 </button>
             </div>
         </div>
@@ -297,8 +298,13 @@ export function AddEntryModal({
                     try {
                         const text = await response.text();
                         console.log('Response body:', text);
-                        const json = JSON.parse(text);
-                        storageId = json?.storageId || json?.id || json?._id;
+                        const json = JSON.parse(text) as {
+                            storageId?: string;
+                            id?: string;
+                            _id?: string;
+                        };
+                        storageId =
+                            json?.storageId ?? json?.id ?? json?._id ?? null;
                     } catch (e) {
                         // Response might be plain text
                     }
@@ -311,7 +317,7 @@ export function AddEntryModal({
                 }
 
                 await registerFile({
-                    storageId: storageId as any,
+                    storageId: storageId as Id<'_storage'>,
                     fileName: file.name,
                     fileType: file.type,
                     fileSize: file.size
@@ -390,7 +396,7 @@ export function AddEntryModal({
                 .map((t) => t.trim())
                 .filter(Boolean),
             website: website.trim() || undefined,
-            photos: uploadedPhotos.map((p) => p.storageId) as any
+            photos: uploadedPhotos.map((p) => p.storageId as Id<'_storage'>)
         };
 
         setIsSubmitting(true);
@@ -670,7 +676,8 @@ export function AddEntryModal({
                                             searchResults.length === 0) && (
                                             <p className="text-muted-foreground text-sm">
                                                 ✓ No similar entries found.
-                                                You're adding something new!
+                                                You&apos;re adding something
+                                                new!
                                             </p>
                                         )}
                                 </div>
@@ -731,8 +738,9 @@ export function AddEntryModal({
                                     </div>
 
                                     <p className="text-muted-foreground text-xs">
-                                        Click "I don't know" if you're unsure
-                                        about a specific accessibility type
+                                        Click &quot;I don&apos;t know&quot; if
+                                        you&apos;re unsure about a specific
+                                        accessibility type
                                     </p>
                                 </div>
                             )}
@@ -748,10 +756,12 @@ export function AddEntryModal({
                                                     key={photo.storageId}
                                                     className="relative group w-20 h-20"
                                                 >
-                                                    <img
+                                                    <Image
                                                         src={photo.preview}
                                                         alt={photo.name}
-                                                        className="w-full h-full object-cover rounded-md"
+                                                        fill
+                                                        unoptimized
+                                                        className="object-cover rounded-md"
                                                     />
                                                     <button
                                                         type="button"

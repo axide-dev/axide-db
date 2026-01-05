@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { useQuery, useMutation } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '../../convex/_generated/api';
@@ -15,6 +16,7 @@ import {
     CardFooter
 } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
+import { Skeleton } from '~/components/ui/skeleton';
 
 type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
 
@@ -117,10 +119,12 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                     >
                         <div className="flex items-start gap-3">
                             {user?.imageUrl && (
-                                <img
+                                <Image
                                     src={user.imageUrl}
                                     alt={user.fullName ?? 'User'}
-                                    className="h-8 w-8 rounded-full ring-2 ring-[#242433]"
+                                    width={32}
+                                    height={32}
+                                    className="rounded-full ring-2 ring-[#242433]"
                                 />
                             )}
                             <div className="flex-1">
@@ -165,9 +169,24 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                 {/* Comments List */}
                 <div className="flex flex-col gap-4">
                     {comments === undefined ? (
-                        <p className="text-center text-sm text-[#B9BBC7]">
-                            Loading comments...
-                        </p>
+                        <div className="space-y-4">
+                            {[1, 2, 3].map((i) => (
+                                <div
+                                    key={i}
+                                    className="flex gap-3 border-t border-[#242433] pt-4"
+                                >
+                                    <Skeleton className="h-8 w-8 rounded-full flex-shrink-0" />
+                                    <div className="flex-1 space-y-2">
+                                        <div className="flex items-center gap-2">
+                                            <Skeleton className="h-4 w-24" />
+                                            <Skeleton className="h-3 w-16" />
+                                        </div>
+                                        <Skeleton className="h-4 w-full" />
+                                        <Skeleton className="h-4 w-3/4" />
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
                     ) : comments.length === 0 ? (
                         <p className="text-center text-sm text-[#B9BBC7]">
                             No comments yet. Be the first to share your
@@ -180,10 +199,12 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                                 className="flex gap-3 border-t border-[#242433] pt-4"
                             >
                                 {comment.userImage ? (
-                                    <img
+                                    <Image
                                         src={comment.userImage}
                                         alt={comment.userName ?? 'User'}
-                                        className="h-8 w-8 rounded-full ring-2 ring-[#242433]"
+                                        width={32}
+                                        height={32}
+                                        className="rounded-full ring-2 ring-[#242433]"
                                     />
                                 ) : (
                                     <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#242433]">

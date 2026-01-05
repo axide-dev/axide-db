@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import type { Doc, Id } from '../../convex/_generated/dataModel';
 import {
@@ -185,10 +186,11 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
                                 onClick={() => setSelectedPhoto(index)}
                                 className="relative aspect-square overflow-hidden rounded-lg border border-[#242433] transition-all hover:ring-2 hover:ring-[#2DE2E6]/50"
                             >
-                                <img
+                                <Image
                                     src={url}
                                     alt={`Photo ${index + 1}`}
-                                    className="h-full w-full object-cover"
+                                    fill
+                                    className="object-cover"
                                 />
                             </button>
                         );
@@ -208,12 +210,15 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
                     >
                         <span className="text-2xl">✕</span>
                     </button>
-                    <img
-                        src={photoUrls[photos[selectedPhoto]] ?? ''}
-                        alt={`Photo ${selectedPhoto + 1}`}
-                        className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
-                        onClick={(e) => e.stopPropagation()}
-                    />
+                    <div className="relative h-[90vh] w-[90vw]">
+                        <Image
+                            src={photoUrls[photos[selectedPhoto]] ?? ''}
+                            alt={`Photo ${selectedPhoto + 1}`}
+                            fill
+                            className="object-contain rounded-lg"
+                            onClick={(e) => e.stopPropagation()}
+                        />
+                    </div>
                     {selectedPhoto > 0 && (
                         <button
                             type="button"

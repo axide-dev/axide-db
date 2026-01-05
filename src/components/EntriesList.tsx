@@ -6,6 +6,7 @@ import { useQuery } from 'convex/react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { api } from '../../convex/_generated/api';
 import type { Doc } from '../../convex/_generated/dataModel';
+import type { AnyEntry } from '../../convex/entries';
 import { Input } from '~/components/ui/input';
 import {
     Card,
@@ -22,6 +23,7 @@ import {
     SelectTrigger,
     SelectValue
 } from '~/components/ui/select';
+import { SkeletonEntriesGrid } from '~/components/ui/skeleton';
 
 type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
 
@@ -110,7 +112,7 @@ function AccessibilityBadges({
     );
 }
 
-function EntryCard({ entry }: { entry: any }) {
+function EntryCard({ entry }: { entry: AnyEntry }) {
     return (
         <Link href={`/entry/${entry._id}`}>
             <Card className="group h-full cursor-pointer border-[#242433] bg-[#12121A] transition-all duration-300 hover:border-[#2DE2E6]/40 hover:shadow-[0_0_30px_rgba(45,226,230,0.1)]">
@@ -120,9 +122,9 @@ function EntryCard({ entry }: { entry: any }) {
                             {entry.name}
                         </CardTitle>
                         <Badge
-                            className={`border ${categoryColors[entry.category as Category]}`}
+                            className={`border ${categoryColors[entry.category]}`}
                         >
-                            {categoryLabels[entry.category as Category]}
+                            {categoryLabels[entry.category]}
                         </Badge>
                     </div>
                     <RatingStars rating={entry.overallRating} />
@@ -169,11 +171,14 @@ function EntryCard({ entry }: { entry: any }) {
                         </div>
                     )}
 
-                    {entry.platforms && entry.platforms.length > 0 && (
-                        <div className="text-xs text-[#B9BBC7]/60">
-                            Platforms: {entry.platforms.join(', ')}
-                        </div>
-                    )}
+                    {'platforms' in entry &&
+                        entry.platforms &&
+                        (entry.platforms as string[]).length > 0 && (
+                            <div className="text-xs text-[#B9BBC7]/60">
+                                Platforms:{' '}
+                                {(entry.platforms as string[]).join(', ')}
+                            </div>
+                        )}
                 </CardContent>
             </Card>
         </Link>
@@ -181,7 +186,7 @@ function EntryCard({ entry }: { entry: any }) {
 }
 
 interface EntriesListProps {
-    initialEntries: any[];
+    initialEntries: AnyEntry[];
 }
 
 export function EntriesList({ initialEntries }: EntriesListProps) {
@@ -278,12 +283,7 @@ export function EntriesList({ initialEntries }: EntriesListProps) {
 
             {/* Results */}
             {isLoading ? (
-                <div className="flex items-center justify-center py-16">
-                    <div className="flex flex-col items-center gap-4">
-                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2DE2E6] border-t-transparent" />
-                        <span className="text-[#B9BBC7]">Loading...</span>
-                    </div>
-                </div>
+                <SkeletonEntriesGrid count={6} />
             ) : entries && entries.length > 0 ? (
                 <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {entries.map((entry) => (

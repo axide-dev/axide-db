@@ -1,17 +1,7 @@
-import { Suspense } from 'react';
 import Link from 'next/link';
-import { fetchQuery, api } from '~/lib/convex';
-import { EntriesList } from '~/components/EntriesList';
-import { AddEntryModal } from '~/components/AddEntryModal';
-import { TotalEntriesCounter } from '~/components/TotalEntriesCounter';
 import { SkeletonCounter, SkeletonEntriesGrid } from '~/components/ui/skeleton';
 
-export default async function Page() {
-    // Fetch initial entries on the server for SSR
-    const initialEntries = await fetchQuery(api.entries.getEntries, {
-        limit: 50
-    });
-
+export default function Loading() {
     return (
         <main className="flex min-h-screen flex-col items-center px-4 py-12 sm:px-8">
             {/* Hero Section */}
@@ -41,22 +31,18 @@ export default async function Page() {
                     </p>
                 </div>
 
-                {/* Counter - Suspense boundary for streaming */}
-                <Suspense fallback={<SkeletonCounter />}>
-                    <TotalEntriesCounter />
-                </Suspense>
+                {/* Counter Skeleton */}
+                <SkeletonCounter />
             </header>
 
-            {/* Action Button */}
+            {/* Action Button Skeleton */}
             <div className="mb-12">
-                <AddEntryModal />
+                <div className="h-12 w-40 animate-pulse rounded-full bg-[#242433]" />
             </div>
 
-            {/* Content - Suspense boundary for streaming entries */}
+            {/* Entries Grid Skeleton */}
             <div className="w-full max-w-7xl">
-                <Suspense fallback={<SkeletonEntriesGrid count={6} />}>
-                    <EntriesList initialEntries={initialEntries} />
-                </Suspense>
+                <SkeletonEntriesGrid count={6} />
             </div>
 
             {/* Footer */}

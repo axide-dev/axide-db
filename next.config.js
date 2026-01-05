@@ -16,6 +16,26 @@ const config = {
         NEXT_PUBLIC_CONVEX_URL: process.env.NEXT_PUBLIC_CONVEX_URL,
         NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY:
             process.env.NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY
+    },
+    images: {
+        remotePatterns: [
+            {
+                protocol: 'https',
+                hostname: 'images.unsplash.com'
+            },
+            {
+                protocol: 'https',
+                hostname: 'img.clerk.com'
+            },
+            {
+                protocol: 'https',
+                hostname: '*.convex.cloud'
+            },
+            {
+                protocol: 'https',
+                hostname: '*.convex.site'
+            }
+        ]
     }
 };
 

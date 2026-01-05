@@ -1,6 +1,7 @@
 'use client';
 
 import * as React from 'react';
+import Image from 'next/image';
 import { useMutation } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '../../convex/_generated/api';
@@ -378,10 +379,12 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                                         key={photo.storageId}
                                         className="relative group w-20 h-20"
                                     >
-                                        <img
+                                        <Image
                                             src={photo.preview}
                                             alt={photo.name}
-                                            className="w-full h-full object-cover rounded-md"
+                                            fill
+                                            unoptimized
+                                            className="object-cover rounded-md"
                                         />
                                         <button
                                             type="button"

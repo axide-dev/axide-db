@@ -198,7 +198,6 @@ export function AccessibilitySearch({
         return (
             <EntryDetail
                 entryId={selectedEntryId}
-                entryType={selectedEntryType}
                 onBack={() => onSelectEntry(null, null)}
             />
         );

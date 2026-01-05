@@ -1,7 +1,9 @@
+import { Suspense } from 'react';
 import { notFound } from 'next/navigation';
 import { fetchQuery, api } from '~/lib/convex';
 import type { Id } from '../../../../convex/_generated/dataModel';
 import { EntryDetailView } from '~/components/EntryDetailView';
+import { SkeletonEntryDetail } from '~/components/ui/skeleton';
 
 interface EntryPageProps {
     params: Promise<{ id: string }>;
@@ -21,7 +23,9 @@ export default async function EntryPage({ params }: EntryPageProps) {
     return (
         <main className="flex min-h-screen flex-col items-center px-4 py-12 sm:px-8">
             <div className="w-full max-w-4xl">
-                <EntryDetailView entry={entry} />
+                <Suspense fallback={<SkeletonEntryDetail />}>
+                    <EntryDetailView entry={entry} />
+                </Suspense>
             </div>
         </main>
     );
