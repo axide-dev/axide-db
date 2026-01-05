@@ -3,6 +3,12 @@
     "version": "0.1.0",
     "private": true,
     "type": "module",
+    "browserslist": [
+        "Chrome >= 92",
+        "Firefox >= 91",
+        "Safari >= 15",
+        "Edge >= 92"
+    ],
     "scripts": {
         "build": "next build && opennextjs-cloudflare build --skip-build",
         "check": "next lint && tsc --noEmit",

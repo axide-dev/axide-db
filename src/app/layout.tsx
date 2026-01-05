@@ -1,14 +1,8 @@
 import type { Metadata } from 'next';
-import {
-    ClerkProvider,
-    SignInButton,
-    SignUpButton,
-    SignedIn,
-    SignedOut,
-    UserButton
-} from '@clerk/nextjs';
+import { ClerkProvider } from '@clerk/nextjs';
 import '~/styles/globals.css';
 import ConvexClientProvider from '~/components/ConvexClientProvider';
+import AuthHeader from '~/components/AuthHeader';
 
 export const metadata: Metadata = {
     title: 'Axide - Accessibility Database',
@@ -25,41 +19,28 @@ export default function RootLayout({
         <ClerkProvider>
             <ConvexClientProvider>
                 <html lang="en" className="dark">
+                    <head>
+                        {/* Preload critical Latin font to reduce LCP latency (~156ms savings) */}
+                        <link
+                            rel="preload"
+                            href="/fonts/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2"
+                            as="font"
+                            type="font/woff2"
+                            crossOrigin="anonymous"
+                        />
+                        {/* DNS prefetch for Clerk to reduce connection time */}
+                        <link
+                            rel="dns-prefetch"
+                            href="https://clerk.accounts.dev"
+                        />
+                        <link
+                            rel="preconnect"
+                            href="https://clerk.accounts.dev"
+                            crossOrigin="anonymous"
+                        />
+                    </head>
                     <body className="bg-[#0B0B10] text-[#F5F6FA] antialiased">
-                        <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-[#242433]/50 bg-[#0B0B10]/80 px-6 backdrop-blur-md">
-                            {/* Logo placeholder */}
-                            <div className="flex items-center gap-2">
-                                <span className="font-heading text-xl font-bold text-[#2DE2E6]">
-                                    Axide DB
-                                </span>
-                            </div>
-
-                            {/* Auth buttons */}
-                            <div className="flex items-center gap-4">
-                                <SignedOut>
-                                    <SignInButton>
-                                        <button className="rounded-full border border-[#242433] bg-transparent px-4 py-2 text-sm font-medium text-[#F5F6FA] transition-all hover:border-[#2DE2E6]/50 hover:bg-[#2DE2E6]/5">
-                                            Sign In
-                                        </button>
-                                    </SignInButton>
-                                    <SignUpButton>
-                                        <button className="rounded-full bg-[#2DE2E6] px-5 py-2 text-sm font-medium text-[#0B0B10] transition-all hover:bg-[#2DE2E6]/90 hover:shadow-[0_0_20px_rgba(45,226,230,0.3)]">
-                                            Sign Up
-                                        </button>
-                                    </SignUpButton>
-                                </SignedOut>
-                                <SignedIn>
-                                    <UserButton
-                                        appearance={{
-                                            elements: {
-                                                avatarBox:
-                                                    'w-9 h-9 ring-2 ring-[#242433] hover:ring-[#2DE2E6]/50 transition-all'
-                                            }
-                                        }}
-                                    />
-                                </SignedIn>
-                            </div>
-                        </header>
+                        <AuthHeader />
                         <div className="pt-16">{children}</div>
                     </body>
                 </html>

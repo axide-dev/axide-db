@@ -36,6 +36,23 @@ const config = {
                 hostname: '*.convex.site'
             }
         ]
+    },
+    // Performance optimizations
+    experimental: {
+        // Optimize package imports for smaller bundles
+        optimizePackageImports: ['@clerk/nextjs', '@hugeicons/react', 'convex']
+    },
+    // Modern browser targets to reduce polyfills (~11 KiB savings)
+    // Targets browsers with ES2020+ support
+    compiler: {
+        // Remove console.log in production
+        removeConsole: process.env.NODE_ENV === 'production'
+    },
+    // Reduce JavaScript bundle size
+    modularizeImports: {
+        '@hugeicons/react': {
+            transform: '@hugeicons/react/{{member}}'
+        }
     }
 };
 
