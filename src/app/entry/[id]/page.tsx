@@ -11,7 +11,7 @@ export default async function EntryPage({ params }: EntryPageProps) {
     const { id } = await params;
 
     const entry = await fetchQuery(api.entries.getEntry, {
-        id: id as Id<'accessibilityEntries'>
+        id: id
     });
 
     if (!entry) {

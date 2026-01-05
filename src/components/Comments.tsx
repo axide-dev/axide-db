@@ -16,9 +16,17 @@ import {
 } from '~/components/ui/card';
 import { Badge } from '~/components/ui/badge';
 
+type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
+
 interface CommentsProps {
-    entryId: Id<'accessibilityEntries'>;
+    entryId:
+        | Id<'games'>
+        | Id<'hardware'>
+        | Id<'places'>
+        | Id<'software'>
+        | Id<'services'>;
     entryName: string;
+    entryType: Category;
 }
 
 function formatDate(timestamp: number): string {
@@ -31,9 +39,19 @@ function formatDate(timestamp: number): string {
     });
 }
 
-export function Comments({ entryId, entryName }: CommentsProps) {
+export function Comments({ entryId, entryName, entryType }: CommentsProps) {
     const { isSignedIn, user } = useUser();
-    const comments = useQuery(api.comments.getCommentsForEntry, { entryId });
+    const comments = useQuery(api.comments.getCommentsForEntry, {
+        entryType,
+        gameId: entryType === 'game' ? (entryId as Id<'games'>) : undefined,
+        hardwareId:
+            entryType === 'hardware' ? (entryId as Id<'hardware'>) : undefined,
+        placeId: entryType === 'place' ? (entryId as Id<'places'>) : undefined,
+        softwareId:
+            entryType === 'software' ? (entryId as Id<'software'>) : undefined,
+        serviceId:
+            entryType === 'service' ? (entryId as Id<'services'>) : undefined
+    });
     const addComment = useMutation(api.comments.addComment);
     const deleteComment = useMutation(api.comments.deleteComment);
 
@@ -47,7 +65,25 @@ export function Comments({ entryId, entryName }: CommentsProps) {
         setIsSubmitting(true);
         try {
             await addComment({
-                entryId,
+                entryType,
+                gameId:
+                    entryType === 'game' ? (entryId as Id<'games'>) : undefined,
+                hardwareId:
+                    entryType === 'hardware'
+                        ? (entryId as Id<'hardware'>)
+                        : undefined,
+                placeId:
+                    entryType === 'place'
+                        ? (entryId as Id<'places'>)
+                        : undefined,
+                softwareId:
+                    entryType === 'software'
+                        ? (entryId as Id<'software'>)
+                        : undefined,
+                serviceId:
+                    entryType === 'service'
+                        ? (entryId as Id<'services'>)
+                        : undefined,
                 content: newComment.trim()
             });
             setNewComment('');

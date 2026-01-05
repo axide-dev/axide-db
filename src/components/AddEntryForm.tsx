@@ -61,7 +61,11 @@ function RatingInput({
 
 export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const { isSignedIn } = useUser();
-    const createEntry = useMutation(api.entries.createEntry);
+    const createGame = useMutation(api.games.createGame);
+    const createHardware = useMutation(api.hardware.createHardware);
+    const createPlace = useMutation(api.places.createPlace);
+    const createSoftware = useMutation(api.software.createSoftware);
+    const createService = useMutation(api.services.createService);
 
     const [name, setName] = React.useState('');
     const [description, setDescription] = React.useState('');
@@ -83,6 +87,17 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const [website, setWebsite] = React.useState('');
     const [platformsInput, setPlatformsInput] = React.useState('');
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    // Hardware-specific fields
+    const [manufacturer, setManufacturer] = React.useState('');
+    const [model, setModel] = React.useState('');
+    const [productType, setProductType] = React.useState('');
+
+    // Place-specific fields
+    const [address, setAddress] = React.useState('');
+    const [city, setCity] = React.useState('');
+    const [country, setCountry] = React.useState('');
+    const [placeType, setPlaceType] = React.useState('');
 
     // Feature management
     const [features, setFeatures] = React.useState<
@@ -110,31 +125,68 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
         e.preventDefault();
         if (!name.trim() || !description.trim()) return;
 
+        const commonArgs = {
+            name: name.trim(),
+            description: description.trim(),
+            accessibilityFeatures: features,
+            overallRating,
+            visualAccessibility,
+            auditoryAccessibility,
+            motorAccessibility,
+            cognitiveAccessibility,
+            tags: tagsInput
+                .split(',')
+                .map((t) => t.trim())
+                .filter(Boolean),
+            website: website.trim() || undefined
+        };
+
         setIsSubmitting(true);
         try {
-            await createEntry({
-                name: name.trim(),
-                description: description.trim(),
-                category,
-                accessibilityFeatures: features,
-                overallRating,
-                visualAccessibility,
-                auditoryAccessibility,
-                motorAccessibility,
-                cognitiveAccessibility,
-                tags: tagsInput
-                    .split(',')
-                    .map((t) => t.trim())
-                    .filter(Boolean),
-                website: website.trim() || undefined,
-                platforms:
-                    category === 'game' || category === 'software'
-                        ? platformsInput
-                              .split(',')
-                              .map((p) => p.trim())
-                              .filter(Boolean)
-                        : undefined
-            });
+            switch (category) {
+                case 'game':
+                    await createGame({
+                        ...commonArgs,
+                        platforms: platformsInput
+                            .split(',')
+                            .map((p) => p.trim())
+                            .filter(Boolean)
+                    });
+                    break;
+                case 'hardware':
+                    await createHardware({
+                        ...commonArgs,
+                        manufacturer: manufacturer || undefined,
+                        model: model || undefined,
+                        productType: productType || undefined
+                    });
+                    break;
+                case 'place':
+                    await createPlace({
+                        ...commonArgs,
+                        location: {
+                            address: address || undefined,
+                            city: city || undefined,
+                            country: country || undefined
+                        },
+                        placeType: placeType || undefined
+                    });
+                    break;
+                case 'software':
+                    await createSoftware({
+                        ...commonArgs,
+                        platforms: platformsInput
+                            .split(',')
+                            .map((p) => p.trim())
+                            .filter(Boolean)
+                    });
+                    break;
+                case 'service':
+                    await createService({
+                        ...commonArgs
+                    });
+                    break;
+            }
 
             // Reset form
             setName('');
@@ -148,6 +200,13 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
             setTagsInput('');
             setWebsite('');
             setPlatformsInput('');
+            setManufacturer('');
+            setModel('');
+            setProductType('');
+            setAddress('');
+            setCity('');
+            setCountry('');
+            setPlaceType('');
             setFeatures([]);
 
             onSuccess?.();
@@ -340,6 +399,99 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                                     }
                                 />
                             </div>
+                        )}
+
+                        {category === 'hardware' && (
+                            <>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="manufacturer">
+                                        Manufacturer
+                                    </Label>
+                                    <Input
+                                        id="manufacturer"
+                                        placeholder="e.g., Microsoft"
+                                        value={manufacturer}
+                                        onChange={(e) =>
+                                            setManufacturer(e.target.value)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="model">Model</Label>
+                                    <Input
+                                        id="model"
+                                        placeholder="e.g., Xbox Adaptive Controller"
+                                        value={model}
+                                        onChange={(e) =>
+                                            setModel(e.target.value)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="productType">
+                                        Product Type
+                                    </Label>
+                                    <Input
+                                        id="productType"
+                                        placeholder="e.g., controller, keyboard, mouse"
+                                        value={productType}
+                                        onChange={(e) =>
+                                            setProductType(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </>
+                        )}
+
+                        {category === 'place' && (
+                            <>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="address">Address</Label>
+                                    <Input
+                                        id="address"
+                                        placeholder="Street address"
+                                        value={address}
+                                        onChange={(e) =>
+                                            setAddress(e.target.value)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="city">City</Label>
+                                    <Input
+                                        id="city"
+                                        placeholder="City"
+                                        value={city}
+                                        onChange={(e) =>
+                                            setCity(e.target.value)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="country">Country</Label>
+                                    <Input
+                                        id="country"
+                                        placeholder="Country"
+                                        value={country}
+                                        onChange={(e) =>
+                                            setCountry(e.target.value)
+                                        }
+                                    />
+                                </div>
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="placeType">
+                                        Place Type
+                                    </Label>
+                                    <Input
+                                        id="placeType"
+                                        placeholder="e.g., restaurant, museum, park"
+                                        value={placeType}
+                                        onChange={(e) =>
+                                            setPlaceType(e.target.value)
+                                        }
+                                    />
+                                </div>
+                            </>
                         )}
                     </div>
                 </CardContent>

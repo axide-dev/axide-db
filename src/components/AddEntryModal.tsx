@@ -177,7 +177,11 @@ export function AddEntryModal({
 } = {}) {
     const router = useRouter();
     const { isSignedIn } = useUser();
-    const createEntry = useMutation(api.entries.createEntry);
+    const createGame = useMutation(api.games.createGame);
+    const createHardware = useMutation(api.hardware.createHardware);
+    const createPlace = useMutation(api.places.createPlace);
+    const createSoftware = useMutation(api.software.createSoftware);
+    const createService = useMutation(api.services.createService);
 
     const [open, setOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
@@ -203,6 +207,17 @@ export function AddEntryModal({
     const [website, setWebsite] = React.useState('');
     const [platformsInput, setPlatformsInput] = React.useState('');
     const [isSubmitting, setIsSubmitting] = React.useState(false);
+
+    // Hardware-specific fields
+    const [manufacturer, setManufacturer] = React.useState('');
+    const [model, setModel] = React.useState('');
+    const [productType, setProductType] = React.useState('');
+
+    // Place-specific fields
+    const [address, setAddress] = React.useState('');
+    const [city, setCity] = React.useState('');
+    const [country, setCountry] = React.useState('');
+    const [placeType, setPlaceType] = React.useState('');
 
     // Feature management
     const [features, setFeatures] = React.useState<
@@ -247,6 +262,13 @@ export function AddEntryModal({
         setTagsInput('');
         setWebsite('');
         setPlatformsInput('');
+        setManufacturer('');
+        setModel('');
+        setProductType('');
+        setAddress('');
+        setCity('');
+        setCountry('');
+        setPlaceType('');
         setFeatures([]);
         setNewFeature('');
         setNewFeatureRating(3);
@@ -255,31 +277,68 @@ export function AddEntryModal({
     const handleSubmit = async () => {
         if (!name.trim() || !description.trim() || !category) return;
 
+        const commonArgs = {
+            name: name.trim(),
+            description: description.trim(),
+            accessibilityFeatures: features,
+            overallRating,
+            visualAccessibility,
+            auditoryAccessibility,
+            motorAccessibility,
+            cognitiveAccessibility,
+            tags: tagsInput
+                .split(',')
+                .map((t) => t.trim())
+                .filter(Boolean),
+            website: website.trim() || undefined
+        };
+
         setIsSubmitting(true);
         try {
-            await createEntry({
-                name: name.trim(),
-                description: description.trim(),
-                category,
-                accessibilityFeatures: features,
-                overallRating,
-                visualAccessibility,
-                auditoryAccessibility,
-                motorAccessibility,
-                cognitiveAccessibility,
-                tags: tagsInput
-                    .split(',')
-                    .map((t) => t.trim())
-                    .filter(Boolean),
-                website: website.trim() || undefined,
-                platforms:
-                    category === 'game' || category === 'software'
-                        ? platformsInput
-                              .split(',')
-                              .map((p) => p.trim())
-                              .filter(Boolean)
-                        : undefined
-            });
+            switch (category) {
+                case 'game':
+                    await createGame({
+                        ...commonArgs,
+                        platforms: platformsInput
+                            .split(',')
+                            .map((p) => p.trim())
+                            .filter(Boolean)
+                    });
+                    break;
+                case 'hardware':
+                    await createHardware({
+                        ...commonArgs,
+                        manufacturer: manufacturer || undefined,
+                        model: model || undefined,
+                        productType: productType || undefined
+                    });
+                    break;
+                case 'place':
+                    await createPlace({
+                        ...commonArgs,
+                        location: {
+                            address: address || undefined,
+                            city: city || undefined,
+                            country: country || undefined
+                        },
+                        placeType: placeType || undefined
+                    });
+                    break;
+                case 'software':
+                    await createSoftware({
+                        ...commonArgs,
+                        platforms: platformsInput
+                            .split(',')
+                            .map((p) => p.trim())
+                            .filter(Boolean)
+                    });
+                    break;
+                case 'service':
+                    await createService({
+                        ...commonArgs
+                    });
+                    break;
+            }
 
             resetForm();
             setOpen(false);
@@ -368,313 +427,466 @@ export function AddEntryModal({
                 <Button size="lg">+ Add New Entry</Button>
             </DialogTrigger>
             <DialogContent className="max-h-[90vh] overflow-y-auto">
-                <DialogHeader>
-                    <DialogTitle>{getStepTitle()}</DialogTitle>
-                    <DialogDescription>
-                        {getStepDescription()}
-                    </DialogDescription>
-                    <div className="pt-2">
-                        <StepIndicator
-                            currentStep={step}
-                            totalSteps={TOTAL_STEPS}
-                        />
-                    </div>
-                </DialogHeader>
-
-                <div className="py-4">
-                    {/* Step 1: Category Selection */}
-                    {step === 1 && (
-                        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-                            {CATEGORIES.map((cat) => (
-                                <button
-                                    key={cat.value}
-                                    type="button"
-                                    onClick={() => setCategory(cat.value)}
-                                    className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
-                                        category === cat.value
-                                            ? 'border-red-500 bg-red-500/10'
-                                            : 'border-muted hover:border-muted-foreground/50'
-                                    }`}
-                                >
-                                    <span className="text-3xl">{cat.icon}</span>
-                                    <span className="font-medium">
-                                        {cat.label}
-                                    </span>
-                                </button>
-                            ))}
+                {!isSignedIn ? (
+                    <div className="flex flex-col items-center gap-6 py-8 text-center">
+                        <div className="rounded-full bg-red-500/10 p-4">
+                            <span className="text-4xl">🔒</span>
                         </div>
-                    )}
-
-                    {/* Step 2: Name with Fuzzy Search */}
-                    {step === 2 && (
-                        <div className="flex flex-col gap-4">
-                            <div className="flex flex-col gap-2">
-                                <Label htmlFor="name">Name *</Label>
-                                <Input
-                                    id="name"
-                                    placeholder={`e.g., ${category === 'game' ? 'The Last of Us Part II' : category === 'hardware' ? 'Xbox Adaptive Controller' : category === 'place' ? 'Central Park' : category === 'software' ? 'NVDA Screen Reader' : 'Netflix Accessibility'}`}
-                                    value={name}
-                                    onChange={(e) => setName(e.target.value)}
-                                    autoFocus
+                        <div className="space-y-2">
+                            <DialogTitle className="text-xl">
+                                Sign In Required
+                            </DialogTitle>
+                            <DialogDescription className="max-w-sm">
+                                For security reasons, you must be logged in to
+                                add accessibility entries. This helps us
+                                maintain data quality and prevent spam.
+                            </DialogDescription>
+                        </div>
+                        <SignInButton mode="modal">
+                            <Button size="lg" className="mt-4">
+                                Sign In to Continue
+                            </Button>
+                        </SignInButton>
+                    </div>
+                ) : (
+                    <>
+                        <DialogHeader>
+                            <DialogTitle>{getStepTitle()}</DialogTitle>
+                            <DialogDescription>
+                                {getStepDescription()}
+                            </DialogDescription>
+                            <div className="pt-2">
+                                <StepIndicator
+                                    currentStep={step}
+                                    totalSteps={TOTAL_STEPS}
                                 />
                             </div>
+                        </DialogHeader>
 
-                            {/* Similar entries */}
-                            {searchResults && searchResults.length > 0 && (
-                                <div className="flex flex-col gap-2">
-                                    <div className="flex items-center gap-2">
-                                        <span className="text-muted-foreground text-sm font-medium">
-                                            Similar entries found:
-                                        </span>
-                                        <Badge
-                                            variant="outline"
-                                            className="text-xs"
+                        <div className="py-4">
+                            {/* Step 1: Category Selection */}
+                            {step === 1 && (
+                                <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+                                    {CATEGORIES.map((cat) => (
+                                        <button
+                                            key={cat.value}
+                                            type="button"
+                                            onClick={() =>
+                                                setCategory(cat.value)
+                                            }
+                                            className={`flex flex-col items-center gap-2 rounded-xl border-2 p-4 transition-all ${
+                                                category === cat.value
+                                                    ? 'border-red-500 bg-red-500/10'
+                                                    : 'border-muted hover:border-muted-foreground/50'
+                                            }`}
                                         >
-                                            {searchResults.length} found
-                                        </Badge>
+                                            <span className="text-3xl">
+                                                {cat.icon}
+                                            </span>
+                                            <span className="font-medium">
+                                                {cat.label}
+                                            </span>
+                                        </button>
+                                    ))}
+                                </div>
+                            )}
+
+                            {/* Step 2: Name with Fuzzy Search */}
+                            {step === 2 && (
+                                <div className="flex flex-col gap-4">
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="name">Name *</Label>
+                                        <Input
+                                            id="name"
+                                            placeholder={`e.g., ${category === 'game' ? 'The Last of Us Part II' : category === 'hardware' ? 'Xbox Adaptive Controller' : category === 'place' ? 'Central Park' : category === 'software' ? 'NVDA Screen Reader' : 'Netflix Accessibility'}`}
+                                            value={name}
+                                            onChange={(e) =>
+                                                setName(e.target.value)
+                                            }
+                                            autoFocus
+                                        />
                                     </div>
-                                    <Card>
-                                        <CardContent className="max-h-48 space-y-2 overflow-y-auto p-2">
-                                            {searchResults
-                                                .slice(0, 5)
-                                                .map((entry) => (
-                                                    <SimilarEntryCard
-                                                        key={entry._id}
-                                                        entry={entry}
-                                                        onSelect={() => {
-                                                            setOpen(false);
-                                                            router.push(
-                                                                `/entry/${entry._id}`
-                                                            );
-                                                        }}
-                                                    />
-                                                ))}
-                                        </CardContent>
-                                    </Card>
+
+                                    {/* Similar entries */}
+                                    {searchResults &&
+                                        searchResults.length > 0 && (
+                                            <div className="flex flex-col gap-2">
+                                                <div className="flex items-center gap-2">
+                                                    <span className="text-muted-foreground text-sm font-medium">
+                                                        Similar entries found:
+                                                    </span>
+                                                    <Badge
+                                                        variant="outline"
+                                                        className="text-xs"
+                                                    >
+                                                        {searchResults.length}{' '}
+                                                        found
+                                                    </Badge>
+                                                </div>
+                                                <Card>
+                                                    <CardContent className="max-h-48 space-y-2 overflow-y-auto p-2">
+                                                        {searchResults
+                                                            .slice(0, 5)
+                                                            .map((entry) => (
+                                                                <SimilarEntryCard
+                                                                    key={
+                                                                        entry._id
+                                                                    }
+                                                                    entry={
+                                                                        entry
+                                                                    }
+                                                                    onSelect={() => {
+                                                                        setOpen(
+                                                                            false
+                                                                        );
+                                                                        router.push(
+                                                                            `/entry/${entry._id}`
+                                                                        );
+                                                                    }}
+                                                                />
+                                                            ))}
+                                                    </CardContent>
+                                                </Card>
+                                                <p className="text-muted-foreground text-xs">
+                                                    If your entry already
+                                                    exists, consider adding a
+                                                    review instead.
+                                                </p>
+                                            </div>
+                                        )}
+
+                                    {name.length >= 2 &&
+                                        (!searchResults ||
+                                            searchResults.length === 0) && (
+                                            <p className="text-muted-foreground text-sm">
+                                                ✓ No similar entries found.
+                                                You're adding something new!
+                                            </p>
+                                        )}
+                                </div>
+                            )}
+
+                            {/* Step 3: Description */}
+                            {step === 3 && (
+                                <div className="flex flex-col gap-2">
+                                    <Label htmlFor="description">
+                                        Description *
+                                    </Label>
+                                    <Textarea
+                                        id="description"
+                                        placeholder="Describe the accessibility features and experience. Be specific about what works well and what could be improved..."
+                                        value={description}
+                                        onChange={(e) =>
+                                            setDescription(e.target.value)
+                                        }
+                                        rows={6}
+                                        autoFocus
+                                    />
                                     <p className="text-muted-foreground text-xs">
-                                        If your entry already exists, consider
-                                        adding a review instead.
+                                        {description.length} characters
                                     </p>
                                 </div>
                             )}
 
-                            {name.length >= 2 &&
-                                (!searchResults ||
-                                    searchResults.length === 0) && (
-                                    <p className="text-muted-foreground text-sm">
-                                        ✓ No similar entries found. You're
-                                        adding something new!
-                                    </p>
-                                )}
-                        </div>
-                    )}
+                            {/* Step 4: Ratings */}
+                            {step === 4 && (
+                                <div className="flex flex-col gap-6">
+                                    <RatingInput
+                                        label="Overall Accessibility Rating *"
+                                        value={overallRating}
+                                        onChange={setOverallRating}
+                                    />
 
-                    {/* Step 3: Description */}
-                    {step === 3 && (
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="description">Description *</Label>
-                            <Textarea
-                                id="description"
-                                placeholder="Describe the accessibility features and experience. Be specific about what works well and what could be improved..."
-                                value={description}
-                                onChange={(e) => setDescription(e.target.value)}
-                                rows={6}
-                                autoFocus
-                            />
-                            <p className="text-muted-foreground text-xs">
-                                {description.length} characters
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Step 4: Ratings */}
-                    {step === 4 && (
-                        <div className="flex flex-col gap-6">
-                            <RatingInput
-                                label="Overall Accessibility Rating *"
-                                value={overallRating}
-                                onChange={setOverallRating}
-                            />
-
-                            <div className="grid gap-4 sm:grid-cols-2">
-                                <OptionalRatingInput
-                                    label="👁️ Visual Accessibility"
-                                    value={visualAccessibility}
-                                    onChange={setVisualAccessibility}
-                                />
-                                <OptionalRatingInput
-                                    label="👂 Auditory Accessibility"
-                                    value={auditoryAccessibility}
-                                    onChange={setAuditoryAccessibility}
-                                />
-                                <OptionalRatingInput
-                                    label="🖐️ Motor Accessibility"
-                                    value={motorAccessibility}
-                                    onChange={setMotorAccessibility}
-                                />
-                                <OptionalRatingInput
-                                    label="🧠 Cognitive Accessibility"
-                                    value={cognitiveAccessibility}
-                                    onChange={setCognitiveAccessibility}
-                                />
-                            </div>
-
-                            <p className="text-muted-foreground text-xs">
-                                Click "I don't know" if you're unsure about a
-                                specific accessibility type
-                            </p>
-                        </div>
-                    )}
-
-                    {/* Step 5: Features & Additional Info */}
-                    {step === 5 && (
-                        <div className="flex flex-col gap-6">
-                            {/* Features */}
-                            <div className="flex flex-col gap-3">
-                                <Label>Accessibility Features</Label>
-                                <div className="flex items-end gap-2">
-                                    <div className="flex-1">
-                                        <Input
-                                            placeholder="e.g., Subtitles, Color Blind Mode"
-                                            value={newFeature}
-                                            onChange={(e) =>
-                                                setNewFeature(e.target.value)
-                                            }
-                                            onKeyDown={(e) => {
-                                                if (e.key === 'Enter') {
-                                                    e.preventDefault();
-                                                    addFeature();
-                                                }
-                                            }}
+                                    <div className="grid gap-4 sm:grid-cols-2">
+                                        <OptionalRatingInput
+                                            label="👁️ Visual Accessibility"
+                                            value={visualAccessibility}
+                                            onChange={setVisualAccessibility}
+                                        />
+                                        <OptionalRatingInput
+                                            label="👂 Auditory Accessibility"
+                                            value={auditoryAccessibility}
+                                            onChange={setAuditoryAccessibility}
+                                        />
+                                        <OptionalRatingInput
+                                            label="🖐️ Motor Accessibility"
+                                            value={motorAccessibility}
+                                            onChange={setMotorAccessibility}
+                                        />
+                                        <OptionalRatingInput
+                                            label="🧠 Cognitive Accessibility"
+                                            value={cognitiveAccessibility}
+                                            onChange={setCognitiveAccessibility}
                                         />
                                     </div>
+
+                                    <p className="text-muted-foreground text-xs">
+                                        Click "I don't know" if you're unsure
+                                        about a specific accessibility type
+                                    </p>
+                                </div>
+                            )}
+
+                            {/* Step 5: Features & Additional Info */}
+                            {step === 5 && (
+                                <div className="flex flex-col gap-6">
+                                    {/* Features */}
+                                    <div className="flex flex-col gap-3">
+                                        <Label>Accessibility Features</Label>
+                                        <div className="flex items-end gap-2">
+                                            <div className="flex-1">
+                                                <Input
+                                                    placeholder="e.g., Subtitles, Color Blind Mode"
+                                                    value={newFeature}
+                                                    onChange={(e) =>
+                                                        setNewFeature(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                    onKeyDown={(e) => {
+                                                        if (e.key === 'Enter') {
+                                                            e.preventDefault();
+                                                            addFeature();
+                                                        }
+                                                    }}
+                                                />
+                                            </div>
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                onClick={addFeature}
+                                            >
+                                                Add
+                                            </Button>
+                                        </div>
+                                        {features.length > 0 && (
+                                            <div className="flex flex-wrap gap-2">
+                                                {features.map((f, i) => (
+                                                    <Badge
+                                                        key={i}
+                                                        variant="secondary"
+                                                        className="cursor-pointer pr-1.5"
+                                                        onClick={() =>
+                                                            removeFeature(i)
+                                                        }
+                                                    >
+                                                        {f.feature} ({f.rating}
+                                                        ★) ✕
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Tags */}
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="tags">
+                                            Tags (comma-separated)
+                                        </Label>
+                                        <Input
+                                            id="tags"
+                                            placeholder="e.g., blind-friendly, screen-reader, subtitles"
+                                            value={tagsInput}
+                                            onChange={(e) =>
+                                                setTagsInput(e.target.value)
+                                            }
+                                        />
+                                    </div>
+
+                                    {/* Website */}
+                                    <div className="flex flex-col gap-2">
+                                        <Label htmlFor="website">
+                                            Website (optional)
+                                        </Label>
+                                        <Input
+                                            id="website"
+                                            type="url"
+                                            placeholder="https://..."
+                                            value={website}
+                                            onChange={(e) =>
+                                                setWebsite(e.target.value)
+                                            }
+                                        />
+                                    </div>
+
+                                    {/* Platforms (for games/software) */}
+                                    {(category === 'game' ||
+                                        category === 'software') && (
+                                        <div className="flex flex-col gap-2">
+                                            <Label htmlFor="platforms">
+                                                Platforms (comma-separated)
+                                            </Label>
+                                            <Input
+                                                id="platforms"
+                                                placeholder="e.g., PC, PlayStation 5, Xbox Series X"
+                                                value={platformsInput}
+                                                onChange={(e) =>
+                                                    setPlatformsInput(
+                                                        e.target.value
+                                                    )
+                                                }
+                                            />
+                                        </div>
+                                    )}
+
+                                    {/* Hardware-specific fields */}
+                                    {category === 'hardware' && (
+                                        <>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="manufacturer">
+                                                    Manufacturer
+                                                </Label>
+                                                <Input
+                                                    id="manufacturer"
+                                                    placeholder="e.g., Microsoft"
+                                                    value={manufacturer}
+                                                    onChange={(e) =>
+                                                        setManufacturer(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="model">
+                                                    Model
+                                                </Label>
+                                                <Input
+                                                    id="model"
+                                                    placeholder="e.g., Xbox Adaptive Controller"
+                                                    value={model}
+                                                    onChange={(e) =>
+                                                        setModel(e.target.value)
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="productType">
+                                                    Product Type
+                                                </Label>
+                                                <Input
+                                                    id="productType"
+                                                    placeholder="e.g., controller, keyboard, mouse"
+                                                    value={productType}
+                                                    onChange={(e) =>
+                                                        setProductType(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+
+                                    {/* Place-specific fields */}
+                                    {category === 'place' && (
+                                        <>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="address">
+                                                    Address
+                                                </Label>
+                                                <Input
+                                                    id="address"
+                                                    placeholder="Street address"
+                                                    value={address}
+                                                    onChange={(e) =>
+                                                        setAddress(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="city">
+                                                    City
+                                                </Label>
+                                                <Input
+                                                    id="city"
+                                                    placeholder="City"
+                                                    value={city}
+                                                    onChange={(e) =>
+                                                        setCity(e.target.value)
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="country">
+                                                    Country
+                                                </Label>
+                                                <Input
+                                                    id="country"
+                                                    placeholder="Country"
+                                                    value={country}
+                                                    onChange={(e) =>
+                                                        setCountry(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                            <div className="flex flex-col gap-2">
+                                                <Label htmlFor="placeType">
+                                                    Place Type
+                                                </Label>
+                                                <Input
+                                                    id="placeType"
+                                                    placeholder="e.g., restaurant, museum, park"
+                                                    value={placeType}
+                                                    onChange={(e) =>
+                                                        setPlaceType(
+                                                            e.target.value
+                                                        )
+                                                    }
+                                                />
+                                            </div>
+                                        </>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        <DialogFooter className="flex-col gap-3 sm:flex-row">
+                            <div className="flex w-full gap-2 sm:w-auto">
+                                {step > 1 && (
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        onClick={addFeature}
+                                        onClick={handleBack}
+                                        className="flex-1 sm:flex-none"
                                     >
-                                        Add
+                                        ← Back
                                     </Button>
-                                </div>
-                                {features.length > 0 && (
-                                    <div className="flex flex-wrap gap-2">
-                                        {features.map((f, i) => (
-                                            <Badge
-                                                key={i}
-                                                variant="secondary"
-                                                className="cursor-pointer pr-1.5"
-                                                onClick={() => removeFeature(i)}
-                                            >
-                                                {f.feature} ({f.rating}★) ✕
-                                            </Badge>
-                                        ))}
-                                    </div>
+                                )}
+                                {step < TOTAL_STEPS ? (
+                                    <Button
+                                        type="button"
+                                        onClick={handleNext}
+                                        disabled={!canProceed()}
+                                        className="flex-1 sm:flex-none"
+                                    >
+                                        Next →
+                                    </Button>
+                                ) : (
+                                    <Button
+                                        type="button"
+                                        onClick={handleSubmit}
+                                        disabled={
+                                            isSubmitting ||
+                                            !name.trim() ||
+                                            !description.trim() ||
+                                            !category
+                                        }
+                                        className="flex-1 sm:flex-none"
+                                    >
+                                        {isSubmitting
+                                            ? 'Submitting...'
+                                            : 'Submit Entry'}
+                                    </Button>
                                 )}
                             </div>
-
-                            {/* Tags */}
-                            <div className="flex flex-col gap-2">
-                                <Label htmlFor="tags">
-                                    Tags (comma-separated)
-                                </Label>
-                                <Input
-                                    id="tags"
-                                    placeholder="e.g., blind-friendly, screen-reader, subtitles"
-                                    value={tagsInput}
-                                    onChange={(e) =>
-                                        setTagsInput(e.target.value)
-                                    }
-                                />
-                            </div>
-
-                            {/* Website */}
-                            <div className="flex flex-col gap-2">
-                                <Label htmlFor="website">
-                                    Website (optional)
-                                </Label>
-                                <Input
-                                    id="website"
-                                    type="url"
-                                    placeholder="https://..."
-                                    value={website}
-                                    onChange={(e) => setWebsite(e.target.value)}
-                                />
-                            </div>
-
-                            {/* Platforms (for games/software) */}
-                            {(category === 'game' ||
-                                category === 'software') && (
-                                <div className="flex flex-col gap-2">
-                                    <Label htmlFor="platforms">
-                                        Platforms (comma-separated)
-                                    </Label>
-                                    <Input
-                                        id="platforms"
-                                        placeholder="e.g., PC, PlayStation 5, Xbox Series X"
-                                        value={platformsInput}
-                                        onChange={(e) =>
-                                            setPlatformsInput(e.target.value)
-                                        }
-                                    />
-                                </div>
-                            )}
-                        </div>
-                    )}
-                </div>
-
-                <DialogFooter className="flex-col gap-3 sm:flex-row">
-                    {!isSignedIn && (
-                        <div className="bg-muted/50 flex w-full flex-col items-center gap-2 rounded-lg p-3 text-center sm:w-auto">
-                            <p className="text-muted-foreground text-sm">
-                                Sign in required
-                            </p>
-                            <SignInButton mode="modal">
-                                <Button variant="outline" size="sm">
-                                    Sign In
-                                </Button>
-                            </SignInButton>
-                        </div>
-                    )}
-                    <div className="flex w-full gap-2 sm:w-auto">
-                        {step > 1 && (
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={handleBack}
-                                className="flex-1 sm:flex-none"
-                            >
-                                ← Back
-                            </Button>
-                        )}
-                        {step < TOTAL_STEPS ? (
-                            <Button
-                                type="button"
-                                onClick={handleNext}
-                                disabled={!canProceed()}
-                                className="flex-1 sm:flex-none"
-                            >
-                                Next →
-                            </Button>
-                        ) : (
-                            <Button
-                                type="button"
-                                onClick={handleSubmit}
-                                disabled={
-                                    isSubmitting ||
-                                    !name.trim() ||
-                                    !description.trim() ||
-                                    !category ||
-                                    !isSignedIn
-                                }
-                                className="flex-1 sm:flex-none"
-                            >
-                                {isSubmitting
-                                    ? 'Submitting...'
-                                    : 'Submit Entry'}
-                            </Button>
-                        )}
-                    </div>
-                </DialogFooter>
+                        </DialogFooter>
+                    </>
+                )}
             </DialogContent>
         </Dialog>
     );

@@ -103,8 +103,45 @@ function AccessibilityRatingBar({
     );
 }
 
+// Type for any entry with category
+interface AnyEntry {
+    _id:
+        | Id<'games'>
+        | Id<'hardware'>
+        | Id<'places'>
+        | Id<'software'>
+        | Id<'services'>;
+    _creationTime: number;
+    name: string;
+    description: string;
+    category: Category;
+    overallRating: number;
+    visualAccessibility?: number;
+    auditoryAccessibility?: number;
+    motorAccessibility?: number;
+    cognitiveAccessibility?: number;
+    tags: string[];
+    accessibilityFeatures: Array<{
+        feature: string;
+        description?: string;
+        rating: number;
+    }>;
+    website?: string;
+    createdAt: number;
+    updatedAt: number;
+    // Category-specific fields
+    platforms?: string[];
+    location?: {
+        address?: string;
+        city?: string;
+        country?: string;
+        latitude?: number;
+        longitude?: number;
+    };
+}
+
 interface EntryDetailViewProps {
-    entry: Doc<'accessibilityEntries'>;
+    entry: AnyEntry;
 }
 
 export function EntryDetailView({ entry }: EntryDetailViewProps) {
@@ -300,7 +337,11 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
             </Card>
 
             {/* Comments Section */}
-            <Comments entryId={entry._id} entryName={entry.name} />
+            <Comments
+                entryId={entry._id}
+                entryName={entry.name}
+                entryType={entry.category}
+            />
         </div>
     );
 }

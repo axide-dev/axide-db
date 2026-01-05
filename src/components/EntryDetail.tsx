@@ -105,11 +105,17 @@ function AccessibilityRatingBar({
 }
 
 interface EntryDetailProps {
-    entryId: Id<'accessibilityEntries'>;
+    entryId:
+        | Id<'games'>
+        | Id<'hardware'>
+        | Id<'places'>
+        | Id<'software'>
+        | Id<'services'>;
+    entryType: Category;
     onBack: () => void;
 }
 
-export function EntryDetail({ entryId, onBack }: EntryDetailProps) {
+export function EntryDetail({ entryId, entryType, onBack }: EntryDetailProps) {
     const entry = useQuery(api.entries.getEntry, { id: entryId });
 
     if (entry === undefined) {
@@ -260,21 +266,23 @@ export function EntryDetail({ entryId, onBack }: EntryDetailProps) {
                     )}
 
                     {/* Platforms (for games/software) */}
-                    {entry.platforms && entry.platforms.length > 0 && (
-                        <div>
-                            <h3 className="mb-3 font-medium">Platforms</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {entry.platforms.map((platform) => (
-                                    <Badge key={platform} variant="outline">
-                                        {platform}
-                                    </Badge>
-                                ))}
+                    {'platforms' in entry &&
+                        entry.platforms &&
+                        entry.platforms.length > 0 && (
+                            <div>
+                                <h3 className="mb-3 font-medium">Platforms</h3>
+                                <div className="flex flex-wrap gap-2">
+                                    {entry.platforms.map((platform) => (
+                                        <Badge key={platform} variant="outline">
+                                            {platform}
+                                        </Badge>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    )}
+                        )}
 
                     {/* Location (for places) */}
-                    {entry.location && (
+                    {'location' in entry && entry.location && (
                         <div>
                             <h3 className="mb-3 font-medium">📍 Location</h3>
                             <p className="text-muted-foreground">
@@ -331,7 +339,18 @@ export function EntryDetail({ entryId, onBack }: EntryDetailProps) {
             </Card>
 
             {/* Comments Section */}
-            <Comments entryId={entry._id} entryName={entry.name} />
+            <Comments
+                entryId={
+                    entry._id as
+                        | Id<'games'>
+                        | Id<'hardware'>
+                        | Id<'places'>
+                        | Id<'software'>
+                        | Id<'services'>
+                }
+                entryName={entry.name}
+                entryType={entry.category}
+            />
         </div>
     );
 }

@@ -103,12 +103,54 @@ function AccessibilityBadges({
     );
 }
 
+interface AccessibilityEntry {
+    _id:
+        | Id<'games'>
+        | Id<'hardware'>
+        | Id<'places'>
+        | Id<'software'>
+        | Id<'services'>;
+    _creationTime: number;
+    name: string;
+    description: string;
+    category: Category;
+    overallRating: number;
+    visualAccessibility?: number;
+    auditoryAccessibility?: number;
+    motorAccessibility?: number;
+    cognitiveAccessibility?: number;
+    tags: string[];
+    accessibilityFeatures: Array<{
+        feature: string;
+        description?: string;
+        rating: number;
+    }>;
+    platforms?: string[];
+}
+
 export function AccessibilitySearch({
     selectedEntryId,
+    selectedEntryType,
     onSelectEntry
 }: {
-    selectedEntryId: Id<'accessibilityEntries'> | null;
-    onSelectEntry: (id: Id<'accessibilityEntries'> | null) => void;
+    selectedEntryId:
+        | Id<'games'>
+        | Id<'hardware'>
+        | Id<'places'>
+        | Id<'software'>
+        | Id<'services'>
+        | null;
+    selectedEntryType: Category | null;
+    onSelectEntry: (
+        id:
+            | Id<'games'>
+            | Id<'hardware'>
+            | Id<'places'>
+            | Id<'software'>
+            | Id<'services'>
+            | null,
+        type: Category | null
+    ) => void;
 }) {
     const [searchQuery, setSearchQuery] = React.useState('');
     const [selectedCategory, setSelectedCategory] = React.useState<
@@ -145,11 +187,12 @@ export function AccessibilitySearch({
     const isLoading = entries === undefined;
 
     // If an entry is selected, show the detail view
-    if (selectedEntryId) {
+    if (selectedEntryId && selectedEntryType) {
         return (
             <EntryDetail
                 entryId={selectedEntryId}
-                onBack={() => onSelectEntry(null)}
+                entryType={selectedEntryType}
+                onBack={() => onSelectEntry(null, null)}
             />
         );
     }
@@ -194,11 +237,13 @@ export function AccessibilitySearch({
                 </div>
             ) : entries && entries.length > 0 ? (
                 <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-                    {entries.map((entry) => (
+                    {(entries as AccessibilityEntry[]).map((entry) => (
                         <Card
                             key={entry._id}
                             className="hover:ring-primary/50 cursor-pointer transition-all hover:ring-2"
-                            onClick={() => onSelectEntry(entry._id)}
+                            onClick={() =>
+                                onSelectEntry(entry._id, entry.category)
+                            }
                         >
                             <CardHeader>
                                 <div className="flex items-start justify-between gap-2">
