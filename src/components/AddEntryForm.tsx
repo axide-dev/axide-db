@@ -4,6 +4,7 @@ import * as React from 'react';
 import { useMutation } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '../../convex/_generated/api';
+import type { Id } from '../../convex/_generated/dataModel';
 import { Input } from '~/components/ui/input';
 import { Textarea } from '~/components/ui/textarea';
 import { Button } from '~/components/ui/button';
@@ -110,7 +111,7 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
 
     // File upload state
     const [uploadedPhotos, setUploadedPhotos] = React.useState<
-        Array<{ storageId: string; name: string; preview: string }>
+        Array<{ storageId: Id<'_storage'>; name: string; preview: string }>
     >([]);
     const [isUploading, setIsUploading] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -138,10 +139,18 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
         setIsUploading(true);
         try {
             for (const file of Array.from(files)) {
+                // Step 1: Get a short-lived upload URL
                 const uploadUrl = await generateUploadUrl();
 
+                // Step 2: POST the file to the upload URL and receive a storageId
                 const response = await fetch(uploadUrl, {
                     method: 'POST',
+                    headers: {
+                        'Content-Type':
+                            file.type && file.type.length > 0
+                                ? file.type
+                                : 'application/octet-stream'
+                    },
                     body: file
                 });
 
@@ -152,21 +161,15 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                     );
                 }
 
-                let storageId = response.headers.get('X-Convex-Storage-Id');
-
+                const json = (await response.json()) as { storageId?: string };
+                const storageId = json.storageId as Id<'_storage'> | undefined;
                 if (!storageId) {
-                    try {
-                        const json = await response.json();
-                        storageId = json?.storageId || json?.id;
-                    } catch {}
+                    throw new Error('No storageId returned from upload');
                 }
 
-                if (!storageId) {
-                    throw new Error('No storage ID returned from upload');
-                }
-
+                // Step 3: Persist the storageId in the database
                 await registerFile({
-                    storageId: storageId as any,
+                    storageId,
                     fileName: file.name,
                     fileType: file.type,
                     fileSize: file.size
@@ -218,7 +221,7 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                 .map((t) => t.trim())
                 .filter(Boolean),
             website: website.trim() || undefined,
-            photos: uploadedPhotos.map((p) => p.storageId) as any
+            photos: uploadedPhotos.map((p) => p.storageId)
         };
 
         setIsSubmitting(true);
