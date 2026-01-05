@@ -4,15 +4,15 @@
     "private": true,
     "type": "module",
     "scripts": {
-        "build": "next build",
+        "build": "next build && opennextjs-cloudflare build --skip-build",
         "check": "next lint && tsc --noEmit",
         "dev": "next dev",
         "format:check": "prettier --check \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
         "format:write": "prettier --write \"**/*.{ts,tsx,js,jsx,mdx}\" --cache",
         "lint": "next lint",
         "lint:fix": "next lint --fix",
-        "preview": "opennextjs-cloudflare build && bunx opennextjs-cloudflare preview",
-        "deploy": "opennextjs-cloudflare build && bunx opennextjs-cloudflare deploy",
+        "preview": "bun run build && opennextjs-cloudflare preview",
+        "deploy": "bun run build && opennextjs-cloudflare deploy",
         "cf-typegen": "wrangler types --env-interface CloudflareEnv cloudflare-env.d.ts",
         "start": "next start",
         "typecheck": "tsc --noEmit"
