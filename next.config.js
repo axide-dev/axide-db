@@ -7,6 +7,7 @@ import './src/env.js';
 /** @type {import("next").NextConfig} */
 const config = {
     output: 'standalone',
+    reactCompiler: true,
     env: {
         // Embed environment variables at build time
         CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY,
