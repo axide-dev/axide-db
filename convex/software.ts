@@ -66,6 +66,7 @@ export const createSoftware = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.array(v.string()),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         // Software-specific fields
         platforms: v.array(v.string()),
         developer: v.optional(v.string()),
@@ -81,10 +82,11 @@ export const createSoftware = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
+        const { photos, ...rest } = args;
         const now = Date.now();
         const newSoftware = {
-            ...args,
-            photos: [],
+            ...rest,
+            photos: photos ?? [],
             createdBy: identity.subject,
             createdAt: now,
             updatedAt: now
@@ -119,6 +121,7 @@ export const updateSoftware = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         platforms: v.optional(v.array(v.string())),
         developer: v.optional(v.string()),
         version: v.optional(v.string()),

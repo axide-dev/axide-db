@@ -182,5 +182,19 @@ export default defineSchema({
         .index('by_software', ['softwareId'])
         .index('by_service', ['serviceId'])
         .index('by_user', ['userId'])
-        .index('by_created', ['createdAt'])
+        .index('by_created', ['createdAt']),
+
+    uploadedFiles: defineTable({
+        storageId: v.id('_storage'),
+        userId: v.string(),
+        fileName: v.string(),
+        fileType: v.string(),
+        fileSize: v.number(),
+        associatedEntryType: v.optional(entryType),
+        associatedEntryId: v.optional(v.string()),
+        createdAt: v.number()
+    })
+        .index('by_user', ['userId'])
+        .index('by_storage_id', ['storageId'])
+        .index('by_entry', ['associatedEntryType', 'associatedEntryId'])
 });

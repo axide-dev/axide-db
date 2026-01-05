@@ -66,6 +66,7 @@ export const createHardware = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.array(v.string()),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         // Hardware-specific fields
         manufacturer: v.optional(v.string()),
         model: v.optional(v.string()),
@@ -78,10 +79,11 @@ export const createHardware = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
+        const { photos, ...rest } = args;
         const now = Date.now();
         const newHardware = {
-            ...args,
-            photos: [],
+            ...rest,
+            photos: photos ?? [],
             createdBy: identity.subject,
             createdAt: now,
             updatedAt: now
@@ -116,6 +118,7 @@ export const updateHardware = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         manufacturer: v.optional(v.string()),
         model: v.optional(v.string()),
         productType: v.optional(v.string()),

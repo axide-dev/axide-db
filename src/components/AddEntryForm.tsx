@@ -66,6 +66,8 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const createPlace = useMutation(api.places.createPlace);
     const createSoftware = useMutation(api.software.createSoftware);
     const createService = useMutation(api.services.createService);
+    const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
+    const registerFile = useMutation(api.storage.registerFile);
 
     const [name, setName] = React.useState('');
     const [description, setDescription] = React.useState('');
@@ -106,6 +108,13 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const [newFeature, setNewFeature] = React.useState('');
     const [newFeatureRating, setNewFeatureRating] = React.useState(3);
 
+    // File upload state
+    const [uploadedPhotos, setUploadedPhotos] = React.useState<
+        Array<{ storageId: string; name: string; preview: string }>
+    >([]);
+    const [isUploading, setIsUploading] = React.useState(false);
+    const fileInputRef = React.useRef<HTMLInputElement>(null);
+
     const addFeature = () => {
         if (newFeature.trim()) {
             setFeatures([
@@ -119,6 +128,76 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
 
     const removeFeature = (index: number) => {
         setFeatures(features.filter((_, i) => i !== index));
+    };
+
+    // File upload handlers
+    const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+        const files = e.target.files;
+        if (!files || files.length === 0) return;
+
+        setIsUploading(true);
+        try {
+            for (const file of Array.from(files)) {
+                const uploadUrl = await generateUploadUrl();
+
+                const response = await fetch(uploadUrl, {
+                    method: 'POST',
+                    body: file
+                });
+
+                if (!response.ok) {
+                    const text = await response.text();
+                    throw new Error(
+                        `Upload failed: ${response.status} - ${text}`
+                    );
+                }
+
+                let storageId = response.headers.get('X-Convex-Storage-Id');
+
+                if (!storageId) {
+                    try {
+                        const json = await response.json();
+                        storageId = json?.storageId || json?.id;
+                    } catch {}
+                }
+
+                if (!storageId) {
+                    throw new Error('No storage ID returned from upload');
+                }
+
+                await registerFile({
+                    storageId: storageId as any,
+                    fileName: file.name,
+                    fileType: file.type,
+                    fileSize: file.size
+                });
+
+                const preview = URL.createObjectURL(file);
+
+                setUploadedPhotos((prev) => [
+                    ...prev,
+                    { storageId, name: file.name, preview }
+                ]);
+            }
+        } catch (error) {
+            console.error('Failed to upload file:', error);
+            alert('Failed to upload file. Please try again.');
+        } finally {
+            setIsUploading(false);
+            if (fileInputRef.current) {
+                fileInputRef.current.value = '';
+            }
+        }
+    };
+
+    const removePhoto = (storageId: string) => {
+        setUploadedPhotos((prev) => {
+            const photo = prev.find((p) => p.storageId === storageId);
+            if (photo) {
+                URL.revokeObjectURL(photo.preview);
+            }
+            return prev.filter((p) => p.storageId !== storageId);
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -138,7 +217,8 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                 .split(',')
                 .map((t) => t.trim())
                 .filter(Boolean),
-            website: website.trim() || undefined
+            website: website.trim() || undefined,
+            photos: uploadedPhotos.map((p) => p.storageId) as any
         };
 
         setIsSubmitting(true);
@@ -208,6 +288,7 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
             setCountry('');
             setPlaceType('');
             setFeatures([]);
+            setUploadedPhotos([]);
 
             onSuccess?.();
         } catch (error) {
@@ -281,6 +362,58 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                                 rows={4}
                                 required
                             />
+                        </div>
+
+                        <div className="flex flex-col gap-2">
+                            <Label>Photos</Label>
+                            <div className="flex flex-wrap gap-2">
+                                {uploadedPhotos.map((photo) => (
+                                    <div
+                                        key={photo.storageId}
+                                        className="relative group w-20 h-20"
+                                    >
+                                        <img
+                                            src={photo.preview}
+                                            alt={photo.name}
+                                            className="w-full h-full object-cover rounded-md"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                removePhoto(photo.storageId)
+                                            }
+                                            className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity"
+                                        >
+                                            X
+                                        </button>
+                                    </div>
+                                ))}
+                                <label
+                                    className={`w-20 h-20 border-2 border-dashed border-gray-300 rounded-md flex flex-col items-center justify-center cursor-pointer hover:border-gray-400 transition-colors ${
+                                        isUploading ? 'opacity-50' : ''
+                                    }`}
+                                >
+                                    {isUploading ? (
+                                        <span className="text-xs">
+                                            Uploading...
+                                        </span>
+                                    ) : (
+                                        <>
+                                            <span className="text-2xl">+</span>
+                                            <span className="text-xs">Add</span>
+                                        </>
+                                    )}
+                                    <input
+                                        ref={fileInputRef}
+                                        type="file"
+                                        accept="image/*"
+                                        multiple
+                                        onChange={handleFileSelect}
+                                        className="hidden"
+                                        disabled={isUploading}
+                                    />
+                                </label>
+                            </div>
                         </div>
                     </div>
 

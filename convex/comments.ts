@@ -1,5 +1,6 @@
 import { v } from 'convex/values';
 import { query, mutation } from './_generated/server';
+import type { Id } from './_generated/dataModel';
 
 // Entry type validator
 const entryType = v.union(
@@ -14,11 +15,11 @@ const entryType = v.union(
 export const getCommentsForEntry = query({
     args: {
         entryType: entryType,
-        gameId: v.optional(v.id('games')),
-        hardwareId: v.optional(v.id('hardware')),
-        placeId: v.optional(v.id('places')),
-        softwareId: v.optional(v.id('software')),
-        serviceId: v.optional(v.id('services'))
+        gameId: v.optional(v.string()), // Use string to avoid table validation
+        hardwareId: v.optional(v.string()),
+        placeId: v.optional(v.string()),
+        softwareId: v.optional(v.string()),
+        serviceId: v.optional(v.string())
     },
     handler: async (ctx, args) => {
         switch (args.entryType) {
@@ -26,7 +27,9 @@ export const getCommentsForEntry = query({
                 if (!args.gameId) return [];
                 return await ctx.db
                     .query('comments')
-                    .withIndex('by_game', (q) => q.eq('gameId', args.gameId))
+                    .withIndex('by_game', (q) =>
+                        q.eq('gameId', args.gameId as Id<'games'>)
+                    )
                     .order('desc')
                     .collect();
             case 'hardware':
@@ -34,7 +37,7 @@ export const getCommentsForEntry = query({
                 return await ctx.db
                     .query('comments')
                     .withIndex('by_hardware', (q) =>
-                        q.eq('hardwareId', args.hardwareId)
+                        q.eq('hardwareId', args.hardwareId as Id<'hardware'>)
                     )
                     .order('desc')
                     .collect();
@@ -42,7 +45,9 @@ export const getCommentsForEntry = query({
                 if (!args.placeId) return [];
                 return await ctx.db
                     .query('comments')
-                    .withIndex('by_place', (q) => q.eq('placeId', args.placeId))
+                    .withIndex('by_place', (q) =>
+                        q.eq('placeId', args.placeId as Id<'places'>)
+                    )
                     .order('desc')
                     .collect();
             case 'software':
@@ -50,7 +55,7 @@ export const getCommentsForEntry = query({
                 return await ctx.db
                     .query('comments')
                     .withIndex('by_software', (q) =>
-                        q.eq('softwareId', args.softwareId)
+                        q.eq('softwareId', args.softwareId as Id<'software'>)
                     )
                     .order('desc')
                     .collect();
@@ -59,7 +64,7 @@ export const getCommentsForEntry = query({
                 return await ctx.db
                     .query('comments')
                     .withIndex('by_service', (q) =>
-                        q.eq('serviceId', args.serviceId)
+                        q.eq('serviceId', args.serviceId as Id<'services'>)
                     )
                     .order('desc')
                     .collect();
@@ -71,11 +76,11 @@ export const getCommentsForEntry = query({
 export const getCommentCount = query({
     args: {
         entryType: entryType,
-        gameId: v.optional(v.id('games')),
-        hardwareId: v.optional(v.id('hardware')),
-        placeId: v.optional(v.id('places')),
-        softwareId: v.optional(v.id('software')),
-        serviceId: v.optional(v.id('services'))
+        gameId: v.optional(v.string()),
+        hardwareId: v.optional(v.string()),
+        placeId: v.optional(v.string()),
+        softwareId: v.optional(v.string()),
+        serviceId: v.optional(v.string())
     },
     handler: async (ctx, args) => {
         let comments: unknown[] = [];
@@ -84,7 +89,9 @@ export const getCommentCount = query({
                 if (!args.gameId) return 0;
                 comments = await ctx.db
                     .query('comments')
-                    .withIndex('by_game', (q) => q.eq('gameId', args.gameId))
+                    .withIndex('by_game', (q) =>
+                        q.eq('gameId', args.gameId as Id<'games'>)
+                    )
                     .collect();
                 break;
             case 'hardware':
@@ -92,7 +99,7 @@ export const getCommentCount = query({
                 comments = await ctx.db
                     .query('comments')
                     .withIndex('by_hardware', (q) =>
-                        q.eq('hardwareId', args.hardwareId)
+                        q.eq('hardwareId', args.hardwareId as Id<'hardware'>)
                     )
                     .collect();
                 break;
@@ -100,7 +107,9 @@ export const getCommentCount = query({
                 if (!args.placeId) return 0;
                 comments = await ctx.db
                     .query('comments')
-                    .withIndex('by_place', (q) => q.eq('placeId', args.placeId))
+                    .withIndex('by_place', (q) =>
+                        q.eq('placeId', args.placeId as Id<'places'>)
+                    )
                     .collect();
                 break;
             case 'software':
@@ -108,7 +117,7 @@ export const getCommentCount = query({
                 comments = await ctx.db
                     .query('comments')
                     .withIndex('by_software', (q) =>
-                        q.eq('softwareId', args.softwareId)
+                        q.eq('softwareId', args.softwareId as Id<'software'>)
                     )
                     .collect();
                 break;
@@ -117,7 +126,7 @@ export const getCommentCount = query({
                 comments = await ctx.db
                     .query('comments')
                     .withIndex('by_service', (q) =>
-                        q.eq('serviceId', args.serviceId)
+                        q.eq('serviceId', args.serviceId as Id<'services'>)
                     )
                     .collect();
                 break;
@@ -130,11 +139,11 @@ export const getCommentCount = query({
 export const addComment = mutation({
     args: {
         entryType: entryType,
-        gameId: v.optional(v.id('games')),
-        hardwareId: v.optional(v.id('hardware')),
-        placeId: v.optional(v.id('places')),
-        softwareId: v.optional(v.id('software')),
-        serviceId: v.optional(v.id('services')),
+        gameId: v.optional(v.string()),
+        hardwareId: v.optional(v.string()),
+        placeId: v.optional(v.string()),
+        softwareId: v.optional(v.string()),
+        serviceId: v.optional(v.string()),
         content: v.string()
     },
     handler: async (ctx, args) => {
@@ -150,11 +159,11 @@ export const addComment = mutation({
 
         return await ctx.db.insert('comments', {
             entryType: args.entryType,
-            gameId: args.gameId,
-            hardwareId: args.hardwareId,
-            placeId: args.placeId,
-            softwareId: args.softwareId,
-            serviceId: args.serviceId,
+            gameId: args.gameId as Id<'games'> | undefined,
+            hardwareId: args.hardwareId as Id<'hardware'> | undefined,
+            placeId: args.placeId as Id<'places'> | undefined,
+            softwareId: args.softwareId as Id<'software'> | undefined,
+            serviceId: args.serviceId as Id<'services'> | undefined,
             userId: identity.subject,
             userName: identity.name ?? undefined,
             userImage: identity.pictureUrl ?? undefined,

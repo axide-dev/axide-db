@@ -72,6 +72,7 @@ export const createPlace = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.array(v.string()),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         // Place-specific fields
         location: v.object({
             address: v.optional(v.string()),
@@ -91,10 +92,11 @@ export const createPlace = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
+        const { photos, ...rest } = args;
         const now = Date.now();
         const newPlace = {
-            ...args,
-            photos: [],
+            ...rest,
+            photos: photos ?? [],
             createdBy: identity.subject,
             createdAt: now,
             updatedAt: now
@@ -129,6 +131,7 @@ export const updatePlace = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         location: v.optional(
             v.object({
                 address: v.optional(v.string()),

@@ -72,6 +72,7 @@ export const createService = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.array(v.string()),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         // Service-specific fields
         serviceType: v.optional(v.string()),
         provider: v.optional(v.string()),
@@ -85,10 +86,11 @@ export const createService = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
+        const { photos, ...rest } = args;
         const now = Date.now();
         const newService = {
-            ...args,
-            photos: [],
+            ...rest,
+            photos: photos ?? [],
             createdBy: identity.subject,
             createdAt: now,
             updatedAt: now
@@ -123,6 +125,7 @@ export const updateService = mutation({
         cognitiveAccessibility: v.optional(v.number()),
         tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
+        photos: v.optional(v.array(v.id('_storage'))),
         serviceType: v.optional(v.string()),
         provider: v.optional(v.string()),
         availability: v.optional(v.array(v.string())),

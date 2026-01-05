@@ -13,6 +13,8 @@ import {
 import { Badge } from '~/components/ui/badge';
 import { Button } from '~/components/ui/button';
 import { Comments } from '~/components/Comments';
+import { useQuery } from 'convex/react';
+import { api } from '~/lib/convex';
 
 type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
 
@@ -129,6 +131,7 @@ interface AnyEntry {
     website?: string;
     createdAt: number;
     updatedAt: number;
+    photos?: Array<Id<'_storage'>>;
     // Category-specific fields
     platforms?: string[];
     location?: {
@@ -142,6 +145,98 @@ interface AnyEntry {
 
 interface EntryDetailViewProps {
     entry: AnyEntry;
+}
+
+function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
+    const [selectedPhoto, setSelectedPhoto] = React.useState<number | null>(
+        null
+    );
+
+    const photoUrls = useQuery(
+        api.storage.getFileUrls,
+        photos.length > 0 ? { storageIds: photos } : 'skip'
+    );
+
+    if (!photoUrls || photos.length === 0) {
+        return null;
+    }
+
+    return (
+        <>
+            <div>
+                <h3 className="mb-3 font-medium">Photos</h3>
+                <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
+                    {photos.map((storageId, index) => {
+                        const url = photoUrls[storageId];
+                        if (!url) return null;
+
+                        return (
+                            <button
+                                key={storageId}
+                                type="button"
+                                onClick={() => setSelectedPhoto(index)}
+                                className="relative aspect-square overflow-hidden rounded-lg border transition-all hover:ring-2 hover:ring-primary"
+                            >
+                                <img
+                                    src={url}
+                                    alt={`Photo ${index + 1}`}
+                                    className="h-full w-full object-cover"
+                                />
+                            </button>
+                        );
+                    })}
+                </div>
+            </div>
+
+            {selectedPhoto !== null && photos[selectedPhoto] && (
+                <div
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+                    onClick={() => setSelectedPhoto(null)}
+                >
+                    <button
+                        type="button"
+                        onClick={() => setSelectedPhoto(null)}
+                        className="absolute right-4 top-4 text-white hover:text-gray-300"
+                    >
+                        <span className="text-2xl">✕</span>
+                    </button>
+                    <img
+                        src={photoUrls[photos[selectedPhoto]] ?? ''}
+                        alt={`Photo ${selectedPhoto + 1}`}
+                        className="max-h-[90vh] max-w-[90vw] object-contain"
+                        onClick={(e) => e.stopPropagation()}
+                    />
+                    {selectedPhoto > 0 && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPhoto(selectedPhoto - 1);
+                            }}
+                            className="absolute left-4 text-white hover:text-gray-300"
+                        >
+                            <span className="text-4xl">←</span>
+                        </button>
+                    )}
+                    {selectedPhoto < photos.length - 1 && (
+                        <button
+                            type="button"
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedPhoto(selectedPhoto + 1);
+                            }}
+                            className="absolute right-4 text-white hover:text-gray-300"
+                        >
+                            <span className="text-4xl">→</span>
+                        </button>
+                    )}
+                    <div className="absolute bottom-4 text-white">
+                        {selectedPhoto + 1} / {photos.length}
+                    </div>
+                </div>
+            )}
+        </>
+    );
 }
 
 export function EntryDetailView({ entry }: EntryDetailViewProps) {
@@ -191,6 +286,11 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     </div>
                 </CardHeader>
                 <CardContent className="flex flex-col gap-6">
+                    {/* Photos */}
+                    {entry.photos && entry.photos.length > 0 && (
+                        <PhotoGallery photos={entry.photos} />
+                    )}
+
                     {/* Description */}
                     <div>
                         <h3 className="mb-2 font-medium">Description</h3>

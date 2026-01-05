@@ -16,6 +16,7 @@ import type * as places from '../places.js';
 import type * as reviews from '../reviews.js';
 import type * as services from '../services.js';
 import type * as software from '../software.js';
+import type * as storage from '../storage.js';
 
 import type {
     ApiFromModules,
@@ -32,6 +33,7 @@ declare const fullApi: ApiFromModules<{
     reviews: typeof reviews;
     services: typeof services;
     software: typeof software;
+    storage: typeof storage;
 }>;
 
 /**

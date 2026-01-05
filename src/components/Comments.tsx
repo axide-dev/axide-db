@@ -43,14 +43,11 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
     const { isSignedIn, user } = useUser();
     const comments = useQuery(api.comments.getCommentsForEntry, {
         entryType,
-        gameId: entryType === 'game' ? (entryId as Id<'games'>) : undefined,
-        hardwareId:
-            entryType === 'hardware' ? (entryId as Id<'hardware'>) : undefined,
-        placeId: entryType === 'place' ? (entryId as Id<'places'>) : undefined,
-        softwareId:
-            entryType === 'software' ? (entryId as Id<'software'>) : undefined,
-        serviceId:
-            entryType === 'service' ? (entryId as Id<'services'>) : undefined
+        gameId: entryType === 'game' ? (entryId as string) : undefined,
+        hardwareId: entryType === 'hardware' ? (entryId as string) : undefined,
+        placeId: entryType === 'place' ? (entryId as string) : undefined,
+        softwareId: entryType === 'software' ? (entryId as string) : undefined,
+        serviceId: entryType === 'service' ? (entryId as string) : undefined
     });
     const addComment = useMutation(api.comments.addComment);
     const deleteComment = useMutation(api.comments.deleteComment);
@@ -66,24 +63,15 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
         try {
             await addComment({
                 entryType,
-                gameId:
-                    entryType === 'game' ? (entryId as Id<'games'>) : undefined,
+                gameId: entryType === 'game' ? (entryId as string) : undefined,
                 hardwareId:
-                    entryType === 'hardware'
-                        ? (entryId as Id<'hardware'>)
-                        : undefined,
+                    entryType === 'hardware' ? (entryId as string) : undefined,
                 placeId:
-                    entryType === 'place'
-                        ? (entryId as Id<'places'>)
-                        : undefined,
+                    entryType === 'place' ? (entryId as string) : undefined,
                 softwareId:
-                    entryType === 'software'
-                        ? (entryId as Id<'software'>)
-                        : undefined,
+                    entryType === 'software' ? (entryId as string) : undefined,
                 serviceId:
-                    entryType === 'service'
-                        ? (entryId as Id<'services'>)
-                        : undefined,
+                    entryType === 'service' ? (entryId as string) : undefined,
                 content: newComment.trim()
             });
             setNewComment('');
