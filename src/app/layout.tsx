@@ -7,27 +7,8 @@ import {
     SignedOut,
     UserButton
 } from '@clerk/nextjs';
-import { Space_Grotesk, Inter, JetBrains_Mono } from 'next/font/google';
 import '~/styles/globals.css';
 import ConvexClientProvider from '~/components/ConvexClientProvider';
-
-const spaceGrotesk = Space_Grotesk({
-    variable: '--font-heading',
-    subsets: ['latin'],
-    weight: ['300', '400', '500', '600', '700']
-});
-
-const inter = Inter({
-    variable: '--font-sans',
-    subsets: ['latin'],
-    weight: ['300', '400', '500', '600', '700']
-});
-
-const jetbrainsMono = JetBrains_Mono({
-    variable: '--font-mono',
-    subsets: ['latin'],
-    weight: ['400', '500']
-});
 
 export const metadata: Metadata = {
     title: 'Axide - Accessibility Database',
@@ -44,9 +25,7 @@ export default function RootLayout({
         <ClerkProvider>
             <ConvexClientProvider>
                 <html lang="en" className="dark">
-                    <body
-                        className={`${spaceGrotesk.variable} ${inter.variable} ${jetbrainsMono.variable} bg-[#0B0B10] text-[#F5F6FA] antialiased`}
-                    >
+                    <body className="bg-[#0B0B10] text-[#F5F6FA] antialiased">
                         <header className="fixed top-0 left-0 right-0 z-50 flex h-16 items-center justify-between border-b border-[#242433]/50 bg-[#0B0B10]/80 px-6 backdrop-blur-md">
                             {/* Logo placeholder */}
                             <div className="flex items-center gap-2">
