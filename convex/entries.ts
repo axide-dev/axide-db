@@ -399,3 +399,24 @@ export const getNumberOfEntriesPerCategory = query({
         };
     }
 });
+
+export const getTotalEntries = query({
+    handler: async (ctx) => {
+        const [games, hardware, places, software, services] = await Promise.all(
+            [
+                ctx.db.query('games').collect(),
+                ctx.db.query('hardware').collect(),
+                ctx.db.query('places').collect(),
+                ctx.db.query('software').collect(),
+                ctx.db.query('services').collect()
+            ]
+        );
+        return (
+            games.length +
+            hardware.length +
+            places.length +
+            software.length +
+            services.length
+        );
+    }
+});
