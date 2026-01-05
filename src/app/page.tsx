@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { fetchQuery, api } from '~/lib/convex';
 import { EntriesList } from '~/components/EntriesList';
 import { AddEntryModal } from '~/components/AddEntryModal';
+import { TotalEntriesCounter } from '~/components/TotalEntriesCounter';
 
 export default async function Page() {
     // Fetch initial entries on the server for SSR
@@ -25,6 +26,7 @@ export default async function Page() {
                     games, hardware, places, software, and services. Search,
                     discover, and share accessibility features to help everyone.
                 </p>
+                <TotalEntriesCounter />
             </header>
 
             {/* Action Button */}
