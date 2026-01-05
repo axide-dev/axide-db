@@ -8,6 +8,17 @@
         "directory": ".open-next/assets",
         "binding": "ASSETS"
     },
+    "vars": {
+        // PUBLIC VARIABLES (Safe to be in source control)
+        "NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY": "pk_test_cmVsZXZhbnQta2l0ZS05MS5jbGVyay5hY2NvdW50cy5kZXYk",
+        "NEXT_PUBLIC_CONVEX_URL": "https://upbeat-octopus-363.convex.cloud",
+
+        // SECRETS (Set these via `npx wrangler secret put <KEY>`)
+        // "CLERK_FRONTEND_API_URL": "your-clerk-frontend-api-url",
+        // "CLERK_JWT_ISSUER_DOMAIN": "your-clerk-jwt-issuer-domain",
+        // CLERK_SECRET_KEY: "sk_test_...",
+        // CONVEX_DEPLOYMENT: "dev:..."
+    },
     "observability": {
         "enabled": true,
         "head_sampling_rate": 1,
