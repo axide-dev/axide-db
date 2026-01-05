@@ -1,3 +1,4 @@
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @import 'tailwindcss';
 @import 'tw-animate-css';
 @import 'shadcn/tailwind.css';
@@ -5,12 +6,11 @@
 @custom-variant dark (&:is(.dark *));
 
 /* Axide Style Guide - Fonts */
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
 @theme {
     --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
         --font-heading: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
         --font-mono: 'JetBrains Mono', ui-monospace, monospace;
-    
+
         /* Axide Colors */
         --color-axide-black: #0B0B10;
         --color-axide-surface: #12121A;
@@ -143,7 +143,7 @@
     body {
         @apply bg-background text-foreground font-sans antialiased;
         }
-        
+
         h1,
         h2,
         h3,
@@ -152,114 +152,114 @@
         h6 {
             font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
         }
-        
+
         code,
         pre,
         kbd {
             font-family: 'JetBrains Mono', ui-monospace, monospace;
         }
         }
-        
+
         /* Axide Glow Effects */
         @layer utilities {
             .glow-cyan {
                 box-shadow: 0 0 20px rgba(45, 226, 230, 0.3), 0 0 40px rgba(45, 226, 230, 0.1);
             }
-        
+
             .glow-cyan-sm {
                 box-shadow: 0 0 10px rgba(45, 226, 230, 0.2);
             }
-        
+
             .glow-cyan-lg {
                 box-shadow: 0 0 30px rgba(45, 226, 230, 0.4), 0 0 60px rgba(45, 226, 230, 0.2);
             }
-        
+
             .text-glow-cyan {
                 text-shadow: 0 0 20px rgba(45, 226, 230, 0.5), 0 0 40px rgba(45, 226, 230, 0.3);
             }
-        
+
             .diagonal-accent {
                 background: linear-gradient(20deg, transparent 49%, #2DE2E6 49%, #2DE2E6 51%, transparent 51%);
             }
-        
+
             .font-heading {
                 font-family: 'Space Grotesk', ui-sans-serif, system-ui, sans-serif;
             }
         }
-        
+
         /* Animated Counter Digit */
         @keyframes digit-slide-up {
             0% {
                 transform: translateY(100%);
                 opacity: 0;
             }
-        
+
             100% {
                 transform: translateY(0);
                 opacity: 1;
             }
         }
-        
+
         @keyframes digit-slide-down {
             0% {
                 transform: translateY(-100%);
                 opacity: 0;
             }
-        
+
             100% {
                 transform: translateY(0);
                 opacity: 1;
             }
         }
-        
+
         @keyframes digit-exit-up {
             0% {
                 transform: translateY(0);
                 opacity: 1;
             }
-        
+
             100% {
                 transform: translateY(-100%);
                 opacity: 0;
             }
         }
-        
+
         @keyframes digit-exit-down {
             0% {
                 transform: translateY(0);
                 opacity: 1;
             }
-        
+
             100% {
                 transform: translateY(100%);
                 opacity: 0;
             }
         }
-        
+
         .animate-digit-up {
             animation: digit-slide-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
+
         .animate-digit-down {
             animation: digit-slide-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
+
         .animate-digit-exit-up {
             animation: digit-exit-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
+
         .animate-digit-exit-down {
             animation: digit-exit-down 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
         }
-        
+
         /* Subtle pulse for the counter */
         @keyframes subtle-pulse {
-        
+
             0%,
             100% {
                 opacity: 1;
             }
-        
+
             50% {
                 opacity: 0.8;
             }

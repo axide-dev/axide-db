@@ -79,7 +79,7 @@ function AnimatedNumber({ value }: { value: number }) {
                     digit={digit}
                     prevDigit={
                         paddedPrevDigits && paddedPrevDigits[index] !== digit
-                            ? paddedPrevDigits[index]
+                            ? (paddedPrevDigits[index] ?? null)
                             : null
                     }
                 />
