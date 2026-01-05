@@ -93,12 +93,17 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
     };
 
     return (
-        <Card className="w-full">
+        <Card className="w-full border-[#242433] bg-[#12121A]">
             <CardHeader>
-                <CardTitle className="flex items-center gap-2">
+                <CardTitle className="flex items-center gap-2 text-[#F5F6FA]">
                     💬 Comments
                     {comments && (
-                        <Badge variant="secondary">{comments.length}</Badge>
+                        <Badge
+                            variant="secondary"
+                            className="bg-[#2DE2E6]/15 text-[#2DE2E6]"
+                        >
+                            {comments.length}
+                        </Badge>
                     )}
                 </CardTitle>
             </CardHeader>
@@ -114,7 +119,7 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                                 <img
                                     src={user.imageUrl}
                                     alt={user.fullName ?? 'User'}
-                                    className="h-8 w-8 rounded-full"
+                                    className="h-8 w-8 rounded-full ring-2 ring-[#242433]"
                                 />
                             )}
                             <div className="flex-1">
@@ -125,7 +130,7 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                                         setNewComment(e.target.value)
                                     }
                                     rows={3}
-                                    className="resize-none"
+                                    className="resize-none border-[#242433] bg-[#0B0B10] text-[#F5F6FA] placeholder:text-[#B9BBC7]/50 focus:border-[#2DE2E6]/50"
                                 />
                             </div>
                         </div>
@@ -134,18 +139,22 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                                 type="submit"
                                 disabled={isSubmitting || !newComment.trim()}
                                 size="sm"
+                                className="bg-[#2DE2E6] text-[#0B0B10] hover:bg-[#2DE2E6]/90"
                             >
                                 {isSubmitting ? 'Posting...' : 'Post Comment'}
                             </Button>
                         </div>
                     </form>
                 ) : (
-                    <div className="bg-muted/50 flex flex-col items-center gap-3 rounded-lg p-6 text-center">
-                        <p className="text-muted-foreground">
+                    <div className="flex flex-col items-center gap-3 rounded-lg border border-[#242433] bg-[#0B0B10] p-6 text-center">
+                        <p className="text-[#B9BBC7]">
                             Sign in to share your accessibility experience
                         </p>
                         <SignInButton mode="modal">
-                            <Button variant="outline">
+                            <Button
+                                variant="outline"
+                                className="border-[#242433] text-[#F5F6FA] hover:border-[#2DE2E6]/50 hover:bg-[#2DE2E6]/5"
+                            >
                                 Sign In to Comment
                             </Button>
                         </SignInButton>
@@ -155,11 +164,11 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                 {/* Comments List */}
                 <div className="flex flex-col gap-4">
                     {comments === undefined ? (
-                        <p className="text-muted-foreground text-center text-sm">
+                        <p className="text-center text-sm text-[#B9BBC7]">
                             Loading comments...
                         </p>
                     ) : comments.length === 0 ? (
-                        <p className="text-muted-foreground text-center text-sm">
+                        <p className="text-center text-sm text-[#B9BBC7]">
                             No comments yet. Be the first to share your
                             experience!
                         </p>
@@ -167,37 +176,37 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                         comments.map((comment) => (
                             <div
                                 key={comment._id}
-                                className="border-border flex gap-3 border-t pt-4"
+                                className="flex gap-3 border-t border-[#242433] pt-4"
                             >
                                 {comment.userImage ? (
                                     <img
                                         src={comment.userImage}
                                         alt={comment.userName ?? 'User'}
-                                        className="h-8 w-8 rounded-full"
+                                        className="h-8 w-8 rounded-full ring-2 ring-[#242433]"
                                     />
                                 ) : (
-                                    <div className="bg-muted flex h-8 w-8 items-center justify-center rounded-full">
+                                    <div className="flex h-8 w-8 items-center justify-center rounded-full bg-[#242433]">
                                         👤
                                     </div>
                                 )}
                                 <div className="min-w-0 flex-1">
                                     <div className="flex items-center gap-2">
-                                        <span className="text-sm font-medium">
+                                        <span className="text-sm font-medium text-[#F5F6FA]">
                                             {comment.userName ?? 'Anonymous'}
                                         </span>
-                                        <span className="text-muted-foreground text-xs">
+                                        <span className="text-xs text-[#B9BBC7]/60">
                                             {formatDate(comment.createdAt)}
                                         </span>
                                         {comment.updatedAt && (
                                             <Badge
                                                 variant="outline"
-                                                className="text-xs"
+                                                className="text-xs border-[#242433] text-[#B9BBC7]"
                                             >
                                                 edited
                                             </Badge>
                                         )}
                                     </div>
-                                    <p className="mt-1 whitespace-pre-wrap text-sm">
+                                    <p className="mt-1 whitespace-pre-wrap text-sm text-[#B9BBC7]">
                                         {comment.content}
                                     </p>
                                     {/* Show delete button if user owns the comment */}
@@ -206,7 +215,7 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                                             <Button
                                                 variant="ghost"
                                                 size="xs"
-                                                className="text-destructive mt-1"
+                                                className="mt-1 text-red-400 hover:text-red-300 hover:bg-red-500/10"
                                                 onClick={() =>
                                                     handleDelete(comment._id)
                                                 }

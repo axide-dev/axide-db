@@ -27,11 +27,11 @@ const categoryLabels: Record<Category, string> = {
 };
 
 const categoryColors: Record<Category, string> = {
-    game: 'bg-purple-500/20 text-purple-400',
-    hardware: 'bg-blue-500/20 text-blue-400',
-    place: 'bg-green-500/20 text-green-400',
-    software: 'bg-orange-500/20 text-orange-400',
-    service: 'bg-pink-500/20 text-pink-400'
+    game: 'bg-[#A78BFA]/15 text-[#A78BFA] border border-[#A78BFA]/30',
+    hardware: 'bg-[#2DE2E6]/15 text-[#2DE2E6] border border-[#2DE2E6]/30',
+    place: 'bg-[#5EF0B6]/15 text-[#5EF0B6] border border-[#5EF0B6]/30',
+    software: 'bg-[#FFB3A7]/15 text-[#FFB3A7] border border-[#FFB3A7]/30',
+    service: 'bg-[#E61E8C]/15 text-[#E61E8C] border border-[#E61E8C]/30'
 };
 
 function RatingStars({
@@ -47,12 +47,12 @@ function RatingStars({
             {[1, 2, 3, 4, 5].map((star) => (
                 <span
                     key={star}
-                    className={`${starClass} ${star <= rating ? 'text-yellow-400' : 'text-gray-600'}`}
+                    className={`${starClass} ${star <= rating ? 'text-[#2DE2E6]' : 'text-[#242433]'}`}
                 >
                     ★
                 </span>
             ))}
-            <span className="text-muted-foreground ml-2 text-sm">
+            <span className="ml-2 text-sm text-[#B9BBC7]">
                 {rating.toFixed(1)} / 5
             </span>
         </div>
@@ -79,23 +79,25 @@ function AccessibilityRatingBar({
             <span className="text-xl">{icon}</span>
             <div className="flex-1">
                 <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium">{label}</span>
+                    <span className="text-sm font-medium text-[#F5F6FA]">
+                        {label}
+                    </span>
                     <span
-                        className={`text-sm ${isUnknown ? 'text-muted-foreground italic' : 'text-muted-foreground'}`}
+                        className={`text-sm ${isUnknown ? 'text-[#B9BBC7]/60 italic' : 'text-[#B9BBC7]'}`}
                     >
                         {isUnknown ? 'Unknown' : `${value}/5`}
                     </span>
                 </div>
-                <div className="bg-muted mt-1 h-2 overflow-hidden rounded-full">
+                <div className="mt-1 h-2 overflow-hidden rounded-full bg-[#242433]">
                     {isUnknown ? (
-                        <div className="bg-muted-foreground/30 flex h-full w-full items-center justify-center rounded-full">
-                            <span className="text-muted-foreground text-[8px]">
+                        <div className="flex h-full w-full items-center justify-center rounded-full bg-[#242433]">
+                            <span className="text-[8px] text-[#B9BBC7]/50">
                                 ?
                             </span>
                         </div>
                     ) : (
                         <div
-                            className="bg-primary h-full rounded-full transition-all"
+                            className="h-full rounded-full bg-gradient-to-r from-[#2DE2E6] to-[#5EF0B6] transition-all"
                             style={{ width: `${(value / 5) * 100}%` }}
                         />
                     )}
@@ -164,7 +166,7 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
     return (
         <>
             <div>
-                <h3 className="mb-3 font-medium">Photos</h3>
+                <h3 className="mb-3 font-medium text-[#F5F6FA]">Photos</h3>
                 <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 md:grid-cols-5">
                     {photos.map((storageId, index) => {
                         const url = photoUrls[storageId];
@@ -175,7 +177,7 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
                                 key={storageId}
                                 type="button"
                                 onClick={() => setSelectedPhoto(index)}
-                                className="relative aspect-square overflow-hidden rounded-lg border transition-all hover:ring-2 hover:ring-primary"
+                                className="relative aspect-square overflow-hidden rounded-lg border border-[#242433] transition-all hover:ring-2 hover:ring-[#2DE2E6]/50"
                             >
                                 <img
                                     src={url}
@@ -190,20 +192,20 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
 
             {selectedPhoto !== null && photos[selectedPhoto] && (
                 <div
-                    className="fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4"
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-[#0B0B10]/95 p-4 backdrop-blur-sm"
                     onClick={() => setSelectedPhoto(null)}
                 >
                     <button
                         type="button"
                         onClick={() => setSelectedPhoto(null)}
-                        className="absolute right-4 top-4 text-white hover:text-gray-300"
+                        className="absolute right-4 top-4 text-[#F5F6FA] hover:text-[#2DE2E6] transition-colors"
                     >
                         <span className="text-2xl">✕</span>
                     </button>
                     <img
                         src={photoUrls[photos[selectedPhoto]] ?? ''}
                         alt={`Photo ${selectedPhoto + 1}`}
-                        className="max-h-[90vh] max-w-[90vw] object-contain"
+                        className="max-h-[90vh] max-w-[90vw] object-contain rounded-lg"
                         onClick={(e) => e.stopPropagation()}
                     />
                     {selectedPhoto > 0 && (
@@ -213,7 +215,7 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
                                 e.stopPropagation();
                                 setSelectedPhoto(selectedPhoto - 1);
                             }}
-                            className="absolute left-4 text-white hover:text-gray-300"
+                            className="absolute left-4 text-[#F5F6FA] hover:text-[#2DE2E6] transition-colors"
                         >
                             <span className="text-4xl">←</span>
                         </button>
@@ -225,12 +227,12 @@ function PhotoGallery({ photos }: { photos: Array<Id<'_storage'>> }) {
                                 e.stopPropagation();
                                 setSelectedPhoto(selectedPhoto + 1);
                             }}
-                            className="absolute right-4 text-white hover:text-gray-300"
+                            className="absolute right-4 text-[#F5F6FA] hover:text-[#2DE2E6] transition-colors"
                         >
                             <span className="text-4xl">→</span>
                         </button>
                     )}
-                    <div className="absolute bottom-4 text-white">
+                    <div className="absolute bottom-4 text-[#B9BBC7]">
                         {selectedPhoto + 1} / {photos.length}
                     </div>
                 </div>
@@ -252,13 +254,16 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
         <div className="flex flex-col gap-6">
             {/* Back Button */}
             <Link href="/">
-                <Button variant="ghost" className="w-fit">
+                <Button
+                    variant="ghost"
+                    className="w-fit text-[#B9BBC7] hover:text-[#2DE2E6] hover:bg-[#2DE2E6]/5"
+                >
                     ← Back to Search
                 </Button>
             </Link>
 
             {/* Main Entry Card */}
-            <Card>
+            <Card className="border-[#242433] bg-[#12121A]">
                 <CardHeader>
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
                         <div className="flex flex-col gap-2">
@@ -271,14 +276,14 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                                 <Badge
                                     className={
                                         isComplete
-                                            ? 'bg-green-500/20 text-green-400'
-                                            : 'bg-yellow-500/20 text-yellow-400'
+                                            ? 'bg-[#5EF0B6]/15 text-[#5EF0B6] border border-[#5EF0B6]/30'
+                                            : 'bg-[#FFB3A7]/15 text-[#FFB3A7] border border-[#FFB3A7]/30'
                                     }
                                 >
                                     {isComplete ? 'Complete' : 'Incomplete'}
                                 </Badge>
                             </div>
-                            <CardTitle className="text-2xl sm:text-3xl">
+                            <CardTitle className="text-2xl text-[#F5F6FA] sm:text-3xl">
                                 {entry.name}
                             </CardTitle>
                         </div>
@@ -293,15 +298,17 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
 
                     {/* Description */}
                     <div>
-                        <h3 className="mb-2 font-medium">Description</h3>
-                        <CardDescription className="whitespace-pre-wrap text-base">
+                        <h3 className="mb-2 font-medium text-[#F5F6FA]">
+                            Description
+                        </h3>
+                        <CardDescription className="whitespace-pre-wrap text-base text-[#B9BBC7]">
                             {entry.description}
                         </CardDescription>
                     </div>
 
                     {/* Accessibility Ratings */}
                     <div>
-                        <h3 className="mb-3 font-medium">
+                        <h3 className="mb-3 font-medium text-[#F5F6FA]">
                             Accessibility Ratings
                         </h3>
                         <div className="grid gap-4 sm:grid-cols-2">
@@ -331,7 +338,7 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     {/* Accessibility Features */}
                     {entry.accessibilityFeatures.length > 0 && (
                         <div>
-                            <h3 className="mb-3 font-medium">
+                            <h3 className="mb-3 font-medium text-[#F5F6FA]">
                                 Accessibility Features
                             </h3>
                             <div className="flex flex-wrap gap-2">
@@ -340,7 +347,7 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                                         <Badge
                                             key={index}
                                             variant="secondary"
-                                            className="text-sm"
+                                            className="text-sm bg-[#2DE2E6]/10 text-[#2DE2E6] border border-[#2DE2E6]/30"
                                         >
                                             {feature.feature} ({feature.rating}
                                             ★)
@@ -354,10 +361,16 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     {/* Tags */}
                     {entry.tags.length > 0 && (
                         <div>
-                            <h3 className="mb-3 font-medium">Tags</h3>
+                            <h3 className="mb-3 font-medium text-[#F5F6FA]">
+                                Tags
+                            </h3>
                             <div className="flex flex-wrap gap-2">
                                 {entry.tags.map((tag) => (
-                                    <Badge key={tag} variant="outline">
+                                    <Badge
+                                        key={tag}
+                                        variant="outline"
+                                        className="border-[#242433] text-[#B9BBC7]"
+                                    >
                                         {tag}
                                     </Badge>
                                 ))}
@@ -368,10 +381,16 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     {/* Platforms (for games/software) */}
                     {entry.platforms && entry.platforms.length > 0 && (
                         <div>
-                            <h3 className="mb-3 font-medium">Platforms</h3>
+                            <h3 className="mb-3 font-medium text-[#F5F6FA]">
+                                Platforms
+                            </h3>
                             <div className="flex flex-wrap gap-2">
                                 {entry.platforms.map((platform) => (
-                                    <Badge key={platform} variant="outline">
+                                    <Badge
+                                        key={platform}
+                                        variant="outline"
+                                        className="border-[#242433] text-[#B9BBC7]"
+                                    >
                                         {platform}
                                     </Badge>
                                 ))}
@@ -382,8 +401,10 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     {/* Location (for places) */}
                     {entry.location && (
                         <div>
-                            <h3 className="mb-3 font-medium">📍 Location</h3>
-                            <p className="text-muted-foreground">
+                            <h3 className="mb-3 font-medium text-[#F5F6FA]">
+                                📍 Location
+                            </h3>
+                            <p className="text-[#B9BBC7]">
                                 {[
                                     entry.location.address,
                                     entry.location.city,
@@ -398,12 +419,14 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     {/* Website */}
                     {entry.website && (
                         <div>
-                            <h3 className="mb-2 font-medium">Website</h3>
+                            <h3 className="mb-2 font-medium text-[#F5F6FA]">
+                                Website
+                            </h3>
                             <a
                                 href={entry.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="text-primary hover:underline"
+                                className="text-[#2DE2E6] hover:underline"
                             >
                                 {entry.website}
                             </a>
@@ -411,7 +434,7 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     )}
 
                     {/* Metadata */}
-                    <div className="text-muted-foreground border-border border-t pt-4 text-xs">
+                    <div className="border-t border-[#242433] pt-4 text-xs text-[#B9BBC7]/60">
                         Added on{' '}
                         {new Date(entry.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',

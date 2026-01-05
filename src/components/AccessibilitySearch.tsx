@@ -34,11 +34,11 @@ const categoryLabels: Record<Category, string> = {
 };
 
 const categoryColors: Record<Category, string> = {
-    game: 'bg-purple-500/20 text-purple-400',
-    hardware: 'bg-blue-500/20 text-blue-400',
-    place: 'bg-green-500/20 text-green-400',
-    software: 'bg-orange-500/20 text-orange-400',
-    service: 'bg-pink-500/20 text-pink-400'
+    game: 'bg-[#A78BFA]/15 text-[#A78BFA] border border-[#A78BFA]/30',
+    hardware: 'bg-[#2DE2E6]/15 text-[#2DE2E6] border border-[#2DE2E6]/30',
+    place: 'bg-[#5EF0B6]/15 text-[#5EF0B6] border border-[#5EF0B6]/30',
+    software: 'bg-[#FFB3A7]/15 text-[#FFB3A7] border border-[#FFB3A7]/30',
+    service: 'bg-[#E61E8C]/15 text-[#E61E8C] border border-[#E61E8C]/30'
 };
 
 function RatingStars({ rating }: { rating: number }) {
@@ -48,13 +48,13 @@ function RatingStars({ rating }: { rating: number }) {
                 <span
                     key={star}
                     className={
-                        star <= rating ? 'text-yellow-400' : 'text-gray-600'
+                        star <= rating ? 'text-[#2DE2E6]' : 'text-[#242433]'
                     }
                 >
                     ★
                 </span>
             ))}
-            <span className="text-muted-foreground ml-1 text-sm">
+            <span className="ml-1 text-sm text-[#B9BBC7]">
                 {rating.toFixed(1)}
             </span>
         </div>

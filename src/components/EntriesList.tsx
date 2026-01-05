@@ -34,11 +34,11 @@ const categoryLabels: Record<Category, string> = {
 };
 
 const categoryColors: Record<Category, string> = {
-    game: 'bg-purple-500/20 text-purple-400',
-    hardware: 'bg-blue-500/20 text-blue-400',
-    place: 'bg-green-500/20 text-green-400',
-    software: 'bg-orange-500/20 text-orange-400',
-    service: 'bg-pink-500/20 text-pink-400'
+    game: 'bg-[#A78BFA]/15 text-[#A78BFA] border-[#A78BFA]/30',
+    hardware: 'bg-[#2DE2E6]/15 text-[#2DE2E6] border-[#2DE2E6]/30',
+    place: 'bg-[#5EF0B6]/15 text-[#5EF0B6] border-[#5EF0B6]/30',
+    software: 'bg-[#FFB3A7]/15 text-[#FFB3A7] border-[#FFB3A7]/30',
+    service: 'bg-[#E61E8C]/15 text-[#E61E8C] border-[#E61E8C]/30'
 };
 
 function RatingStars({ rating }: { rating: number }) {
@@ -48,13 +48,13 @@ function RatingStars({ rating }: { rating: number }) {
                 <span
                     key={star}
                     className={
-                        star <= rating ? 'text-yellow-400' : 'text-gray-600'
+                        star <= rating ? 'text-[#2DE2E6]' : 'text-[#242433]'
                     }
                 >
                     ★
                 </span>
             ))}
-            <span className="text-muted-foreground ml-1 text-sm">
+            <span className="ml-1 text-sm text-[#B9BBC7]">
                 {rating.toFixed(1)}
             </span>
         </div>
@@ -87,7 +87,7 @@ function AccessibilityBadges({
                 <Badge
                     key={badge.fullLabel}
                     variant="outline"
-                    className={`text-xs ${badge.value === undefined ? 'opacity-50' : ''}`}
+                    className={`text-xs border-[#242433] ${badge.value === undefined ? 'opacity-40' : 'text-[#F5F6FA]'}`}
                 >
                     {badge.label}{' '}
                     {badge.value !== undefined ? `${badge.value}/5` : '?'}
@@ -95,7 +95,7 @@ function AccessibilityBadges({
             ))}
             <Badge
                 variant="outline"
-                className={`text-xs ${isEntryComplete ? 'bg-green-500/10 text-green-400' : 'bg-yellow-500/10 text-yellow-400'}`}
+                className={`text-xs ${isEntryComplete ? 'bg-[#5EF0B6]/10 text-[#5EF0B6] border-[#5EF0B6]/30' : 'bg-[#FFB3A7]/10 text-[#FFB3A7] border-[#FFB3A7]/30'}`}
             >
                 {isEntryComplete ? 'Complete' : 'Incomplete'}
             </Badge>
@@ -106,16 +106,14 @@ function AccessibilityBadges({
 function EntryCard({ entry }: { entry: any }) {
     return (
         <Link href={`/entry/${entry._id}`}>
-            <Card className="hover:ring-primary/50 h-full cursor-pointer transition-all hover:ring-2">
+            <Card className="group h-full cursor-pointer border-[#242433] bg-[#12121A] transition-all duration-300 hover:border-[#2DE2E6]/40 hover:shadow-[0_0_30px_rgba(45,226,230,0.1)]">
                 <CardHeader>
                     <div className="flex items-start justify-between gap-2">
-                        <CardTitle className="line-clamp-1 text-lg">
+                        <CardTitle className="line-clamp-1 text-lg text-[#F5F6FA] group-hover:text-[#2DE2E6] transition-colors">
                             {entry.name}
                         </CardTitle>
                         <Badge
-                            className={
-                                categoryColors[entry.category as Category]
-                            }
+                            className={`border ${categoryColors[entry.category as Category]}`}
                         >
                             {categoryLabels[entry.category as Category]}
                         </Badge>
@@ -123,7 +121,7 @@ function EntryCard({ entry }: { entry: any }) {
                     <RatingStars rating={entry.overallRating} />
                 </CardHeader>
                 <CardContent className="flex flex-col gap-3">
-                    <CardDescription className="line-clamp-2">
+                    <CardDescription className="line-clamp-2 text-[#B9BBC7]">
                         {entry.description}
                     </CardDescription>
 
@@ -148,13 +146,16 @@ function EntryCard({ entry }: { entry: any }) {
                                 <Badge
                                     key={tag}
                                     variant="secondary"
-                                    className="text-xs"
+                                    className="text-xs bg-[#242433] text-[#B9BBC7] border-transparent"
                                 >
                                     {tag}
                                 </Badge>
                             ))}
                             {entry.tags.length > 3 && (
-                                <Badge variant="secondary" className="text-xs">
+                                <Badge
+                                    variant="secondary"
+                                    className="text-xs bg-[#242433] text-[#B9BBC7]"
+                                >
                                     +{entry.tags.length - 3}
                                 </Badge>
                             )}
@@ -162,7 +163,7 @@ function EntryCard({ entry }: { entry: any }) {
                     )}
 
                     {entry.platforms && entry.platforms.length > 0 && (
-                        <div className="text-muted-foreground text-xs">
+                        <div className="text-xs text-[#B9BBC7]/60">
                             Platforms: {entry.platforms.join(', ')}
                         </div>
                     )}
@@ -233,7 +234,7 @@ export function EntriesList({ initialEntries }: EntriesListProps) {
     const isLoading = entries === undefined;
 
     return (
-        <div className="flex w-full flex-col gap-6">
+        <div className="flex w-full flex-col gap-8">
             {/* Search and Filter Bar */}
             <div className="flex flex-col gap-4 sm:flex-row">
                 <div className="relative flex-1">
@@ -242,7 +243,7 @@ export function EntriesList({ initialEntries }: EntriesListProps) {
                         placeholder="Search accessibility entries..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full"
+                        className="w-full border-[#242433] bg-[#12121A] text-[#F5F6FA] placeholder:text-[#B9BBC7]/50 focus:border-[#2DE2E6]/50 focus:ring-[#2DE2E6]/20"
                     />
                 </div>
                 <Select
@@ -251,10 +252,10 @@ export function EntriesList({ initialEntries }: EntriesListProps) {
                         setSelectedCategory(value as Category | 'all')
                     }
                 >
-                    <SelectTrigger className="w-full sm:w-48">
+                    <SelectTrigger className="w-full border-[#242433] bg-[#12121A] text-[#F5F6FA] sm:w-48">
                         <SelectValue placeholder="All Categories" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent className="border-[#242433] bg-[#12121A]">
                         <SelectItem value="all">All Categories</SelectItem>
                         <SelectItem value="game">🎮 Games</SelectItem>
                         <SelectItem value="hardware">🖥️ Hardware</SelectItem>
@@ -267,20 +268,27 @@ export function EntriesList({ initialEntries }: EntriesListProps) {
 
             {/* Results */}
             {isLoading ? (
-                <div className="text-muted-foreground py-8 text-center">
-                    Loading...
+                <div className="flex items-center justify-center py-16">
+                    <div className="flex flex-col items-center gap-4">
+                        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[#2DE2E6] border-t-transparent" />
+                        <span className="text-[#B9BBC7]">Loading...</span>
+                    </div>
                 </div>
             ) : entries && entries.length > 0 ? (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+                <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                     {entries.map((entry) => (
                         <EntryCard key={entry._id} entry={entry} />
                     ))}
                 </div>
             ) : (
-                <div className="text-muted-foreground py-8 text-center">
-                    {debouncedQuery.trim()
-                        ? `No results found for "${debouncedQuery}"`
-                        : 'No entries yet. Be the first to add one!'}
+                <div className="py-16 text-center">
+                    <div className="mx-auto max-w-md rounded-2xl border border-[#242433] bg-[#12121A] p-8">
+                        <p className="text-lg text-[#B9BBC7]">
+                            {debouncedQuery.trim()
+                                ? `No results found for "${debouncedQuery}"`
+                                : 'No entries yet. Be the first to add one!'}
+                        </p>
+                    </div>
                 </div>
             )}
         </div>

@@ -48,10 +48,10 @@ function StepIndicator({
                     key={i}
                     className={`h-2 w-2 rounded-full transition-colors ${
                         i + 1 === currentStep
-                            ? 'bg-red-500'
+                            ? 'bg-[#2DE2E6] shadow-[0_0_8px_rgba(45,226,230,0.5)]'
                             : i + 1 < currentStep
-                              ? 'bg-red-500/60'
-                              : 'bg-muted-foreground/30'
+                              ? 'bg-[#2DE2E6]/60'
+                              : 'bg-[#242433]'
                     }`}
                 />
             ))}
@@ -70,7 +70,7 @@ function RatingInput({
 }) {
     return (
         <div className="flex flex-col gap-2">
-            <Label>{label}</Label>
+            <Label className="text-[#F5F6FA]">{label}</Label>
             <div className="flex gap-1">
                 {[1, 2, 3, 4, 5].map((star) => (
                     <button
@@ -79,8 +79,8 @@ function RatingInput({
                         onClick={() => onChange(star)}
                         className={`text-2xl transition-colors ${
                             star <= value
-                                ? 'text-yellow-400'
-                                : 'text-gray-600 hover:text-yellow-300'
+                                ? 'text-[#2DE2E6]'
+                                : 'text-[#242433] hover:text-[#2DE2E6]/50'
                         }`}
                     >
                         ★
@@ -116,8 +116,8 @@ function OptionalRatingInput({
                             onClick={() => onChange(star)}
                             className={`text-2xl transition-colors ${
                                 !isUnknown && star <= (value ?? 0)
-                                    ? 'text-yellow-400'
-                                    : 'text-gray-600 hover:text-yellow-300'
+                                    ? 'text-[#2DE2E6]'
+                                    : 'text-[#242433] hover:text-[#2DE2E6]/50'
                             }`}
                         >
                             ★
@@ -129,8 +129,8 @@ function OptionalRatingInput({
                     onClick={() => onChange(undefined)}
                     className={`ml-2 rounded-md px-2 py-1 text-xs font-medium transition-colors ${
                         isUnknown
-                            ? 'bg-muted-foreground/20 text-foreground'
-                            : 'bg-muted/50 text-muted-foreground hover:bg-muted'
+                            ? 'bg-[#2DE2E6]/20 text-[#2DE2E6]'
+                            : 'bg-[#242433] text-[#B9BBC7] hover:bg-[#242433]/80'
                     }`}
                 >
                     I don't know
@@ -157,13 +157,18 @@ function SimilarEntryCard({
         <button
             type="button"
             onClick={onSelect}
-            className="bg-muted/50 hover:bg-muted flex w-full items-center gap-3 rounded-lg p-3 text-left transition-colors"
+            className="flex w-full items-center gap-3 rounded-lg border border-[#242433] bg-[#12121A] p-3 text-left transition-all hover:border-[#2DE2E6]/30 hover:bg-[#12121A]/80"
         >
             <span className="text-xl">{categoryInfo?.icon}</span>
             <div className="min-w-0 flex-1">
-                <p className="truncate font-medium">{entry.name}</p>
-                <p className="text-muted-foreground text-sm">
-                    {categoryInfo?.label} • {'★'.repeat(entry.overallRating)}
+                <p className="truncate font-medium text-[#F5F6FA]">
+                    {entry.name}
+                </p>
+                <p className="text-sm text-[#B9BBC7]">
+                    {categoryInfo?.label} •{' '}
+                    <span className="text-[#2DE2E6]">
+                        {'★'.repeat(entry.overallRating)}
+                    </span>
                 </p>
             </div>
         </button>
@@ -519,26 +524,34 @@ export function AddEntryModal({
             }}
         >
             <DialogTrigger asChild>
-                <Button size="lg">+ Add New Entry</Button>
+                <Button
+                    size="lg"
+                    className="bg-[#2DE2E6] text-[#0B0B10] hover:bg-[#2DE2E6]/90 hover:shadow-[0_0_30px_rgba(45,226,230,0.4)] transition-all font-medium"
+                >
+                    + Add New Entry
+                </Button>
             </DialogTrigger>
-            <DialogContent className="max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-h-[90vh] overflow-y-auto border-[#242433] bg-[#12121A]">
                 {!isSignedIn ? (
                     <div className="flex flex-col items-center gap-6 py-8 text-center">
-                        <div className="rounded-full bg-red-500/10 p-4">
+                        <div className="rounded-full bg-[#2DE2E6]/10 p-4">
                             <span className="text-4xl">🔒</span>
                         </div>
                         <div className="space-y-2">
-                            <DialogTitle className="text-xl">
+                            <DialogTitle className="text-xl text-[#F5F6FA]">
                                 Sign In Required
                             </DialogTitle>
-                            <DialogDescription className="max-w-sm">
+                            <DialogDescription className="max-w-sm text-[#B9BBC7]">
                                 For security reasons, you must be logged in to
                                 add accessibility entries. This helps us
                                 maintain data quality and prevent spam.
                             </DialogDescription>
                         </div>
                         <SignInButton mode="modal">
-                            <Button size="lg" className="mt-4">
+                            <Button
+                                size="lg"
+                                className="mt-4 bg-[#2DE2E6] text-[#0B0B10] hover:bg-[#2DE2E6]/90"
+                            >
                                 Sign In to Continue
                             </Button>
                         </SignInButton>
@@ -546,8 +559,10 @@ export function AddEntryModal({
                 ) : (
                     <>
                         <DialogHeader>
-                            <DialogTitle>{getStepTitle()}</DialogTitle>
-                            <DialogDescription>
+                            <DialogTitle className="text-[#F5F6FA]">
+                                {getStepTitle()}
+                            </DialogTitle>
+                            <DialogDescription className="text-[#B9BBC7]">
                                 {getStepDescription()}
                             </DialogDescription>
                             <div className="pt-2">
