@@ -2,7 +2,7 @@
 
 import * as React from 'react';
 import Image from 'next/image';
-import { useMutation } from 'convex/react';
+import { useMutation, useQuery } from 'convex/react';
 import { useUser, SignInButton } from '@clerk/nextjs';
 import { api } from '../../convex/_generated/api';
 import type { Id } from '../../convex/_generated/dataModel';
@@ -26,6 +26,44 @@ import {
     SelectValue
 } from '~/components/ui/select';
 import { Badge } from '~/components/ui/badge';
+
+type AccessibilityType =
+    | 'visual'
+    | 'auditory'
+    | 'motor'
+    | 'cognitive'
+    | 'general';
+
+const accessibilityTypeLabels: Record<
+    AccessibilityType,
+    { label: string; icon: string; color: string }
+> = {
+    visual: {
+        label: 'Visual',
+        icon: '👁️',
+        color: 'bg-[#C4B5FD]/20 text-[#C4B5FD] border-[#C4B5FD]/40'
+    },
+    auditory: {
+        label: 'Auditory',
+        icon: '👂',
+        color: 'bg-[#5EEAD4]/20 text-[#5EEAD4] border-[#5EEAD4]/40'
+    },
+    motor: {
+        label: 'Motor',
+        icon: '🖐️',
+        color: 'bg-[#86EFAC]/20 text-[#86EFAC] border-[#86EFAC]/40'
+    },
+    cognitive: {
+        label: 'Cognitive',
+        icon: '🧠',
+        color: 'bg-[#FED7AA]/20 text-[#FED7AA] border-[#FED7AA]/40'
+    },
+    general: {
+        label: 'General',
+        icon: '♿',
+        color: 'bg-[#F9A8D4]/20 text-[#F9A8D4] border-[#F9A8D4]/40'
+    }
+};
 
 type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
 
@@ -61,6 +99,577 @@ function RatingInput({
     );
 }
 
+// Feature Selector Component
+function FeatureSelector({
+    selectedFeatures,
+    onFeaturesChange
+}: {
+    selectedFeatures: Array<{
+        featureId?: Id<'accessibilityFeatures'>;
+        name: string;
+        accessibilityType: AccessibilityType;
+        rating: number;
+    }>;
+    onFeaturesChange: (
+        features: Array<{
+            featureId?: Id<'accessibilityFeatures'>;
+            name: string;
+            accessibilityType: AccessibilityType;
+            rating: number;
+        }>
+    ) => void;
+}) {
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [selectedType, setSelectedType] = React.useState<
+        AccessibilityType | 'all'
+    >('all');
+    const [newFeatureName, setNewFeatureName] = React.useState('');
+    const [newFeatureType, setNewFeatureType] =
+        React.useState<AccessibilityType>('general');
+    const [newFeatureRating, setNewFeatureRating] = React.useState(3);
+    const [showAddNew, setShowAddNew] = React.useState(false);
+
+    // Fetch popular features
+    const popularFeatures = useQuery(api.features.getPopularFeatures, {
+        accessibilityType: selectedType !== 'all' ? selectedType : undefined,
+        limit: 20
+    });
+
+    // Search features
+    const searchResults = useQuery(
+        api.features.searchFeatures,
+        searchQuery.trim().length > 0
+            ? {
+                  searchQuery,
+                  accessibilityType:
+                      selectedType !== 'all' ? selectedType : undefined
+              }
+            : 'skip'
+    );
+
+    const displayFeatures = searchQuery.trim()
+        ? searchResults
+        : popularFeatures;
+
+    const addExistingFeature = (feature: {
+        _id: Id<'accessibilityFeatures'>;
+        name: string;
+        accessibilityType: AccessibilityType;
+    }) => {
+        // Check if already added
+        if (
+            selectedFeatures.some(
+                (f) =>
+                    f.featureId === feature._id ||
+                    f.name.toLowerCase() === feature.name.toLowerCase()
+            )
+        ) {
+            return;
+        }
+        onFeaturesChange([
+            ...selectedFeatures,
+            {
+                featureId: feature._id,
+                name: feature.name,
+                accessibilityType: feature.accessibilityType,
+                rating: 3
+            }
+        ]);
+    };
+
+    const addNewFeature = () => {
+        if (!newFeatureName.trim()) return;
+        // Check if already added
+        if (
+            selectedFeatures.some(
+                (f) =>
+                    f.name.toLowerCase() === newFeatureName.trim().toLowerCase()
+            )
+        ) {
+            return;
+        }
+        onFeaturesChange([
+            ...selectedFeatures,
+            {
+                name: newFeatureName.trim(),
+                accessibilityType: newFeatureType,
+                rating: newFeatureRating
+            }
+        ]);
+        setNewFeatureName('');
+        setNewFeatureRating(3);
+        setShowAddNew(false);
+    };
+
+    const removeFeature = (index: number) => {
+        onFeaturesChange(selectedFeatures.filter((_, i) => i !== index));
+    };
+
+    const updateFeatureRating = (index: number, rating: number) => {
+        const updated = [...selectedFeatures];
+        const feature = updated[index];
+        if (!feature) return;
+        updated[index] = { ...feature, rating };
+        onFeaturesChange(updated);
+    };
+
+    return (
+        <div className="flex flex-col gap-4">
+            <div className="flex items-center justify-between">
+                <h3 className="font-medium text-[#F5F6FA]">
+                    Accessibility Features
+                </h3>
+                <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setShowAddNew(!showAddNew)}
+                    className="border-[#242433] text-[#F5F6FA] hover:border-[#2DE2E6]/50 hover:bg-[#2DE2E6]/5"
+                >
+                    {showAddNew ? 'Cancel' : '+ New Feature'}
+                </Button>
+            </div>
+
+            {/* Add new feature form */}
+            {showAddNew && (
+                <div className="rounded-lg border border-[#242433] bg-[#12121A] p-4 flex flex-col gap-3">
+                    <div className="flex flex-col gap-2">
+                        <Label htmlFor="newFeatureName">Feature Name</Label>
+                        <Input
+                            id="newFeatureName"
+                            placeholder="e.g., High Contrast Mode, Closed Captions"
+                            value={newFeatureName}
+                            onChange={(e) => setNewFeatureName(e.target.value)}
+                            className="border-[#242433] bg-[#0B0B10] text-[#F5F6FA]"
+                        />
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label>Accessibility Type</Label>
+                        <Select
+                            value={newFeatureType}
+                            onValueChange={(v) =>
+                                setNewFeatureType(v as AccessibilityType)
+                            }
+                        >
+                            <SelectTrigger className="border-[#242433] bg-[#0B0B10] text-[#F5F6FA]">
+                                <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                                {Object.entries(accessibilityTypeLabels).map(
+                                    ([type, { label, icon }]) => (
+                                        <SelectItem key={type} value={type}>
+                                            {icon} {label}
+                                        </SelectItem>
+                                    )
+                                )}
+                            </SelectContent>
+                        </Select>
+                    </div>
+                    <div className="flex flex-col gap-2">
+                        <Label>Rating (1-5)</Label>
+                        <div className="flex gap-1">
+                            {[1, 2, 3, 4, 5].map((star) => (
+                                <button
+                                    key={star}
+                                    type="button"
+                                    onClick={() => setNewFeatureRating(star)}
+                                    className={`text-xl transition-colors ${
+                                        star <= newFeatureRating
+                                            ? 'text-[#2DE2E6]'
+                                            : 'text-[#3D3D4D] hover:text-[#2DE2E6]/60'
+                                    }`}
+                                >
+                                    ★
+                                </button>
+                            ))}
+                        </div>
+                    </div>
+                    <Button
+                        type="button"
+                        onClick={addNewFeature}
+                        disabled={!newFeatureName.trim()}
+                        className="bg-[#2DE2E6] text-[#0B0B10] hover:bg-[#2DE2E6]/90"
+                    >
+                        Add Feature
+                    </Button>
+                </div>
+            )}
+
+            {/* Search and filter */}
+            <div className="flex gap-2">
+                <Input
+                    placeholder="Search existing features..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 border-[#242433] bg-[#0B0B10] text-[#F5F6FA]"
+                />
+                <Select
+                    value={selectedType}
+                    onValueChange={(v) =>
+                        setSelectedType(v as AccessibilityType | 'all')
+                    }
+                >
+                    <SelectTrigger className="w-[140px] border-[#242433] bg-[#0B0B10] text-[#F5F6FA]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        {Object.entries(accessibilityTypeLabels).map(
+                            ([type, { label, icon }]) => (
+                                <SelectItem key={type} value={type}>
+                                    {icon} {label}
+                                </SelectItem>
+                            )
+                        )}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Feature suggestions */}
+            {displayFeatures && displayFeatures.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {displayFeatures.map((feature) => {
+                        const isSelected = selectedFeatures.some(
+                            (f) =>
+                                f.featureId === feature._id ||
+                                f.name.toLowerCase() ===
+                                    feature.name.toLowerCase()
+                        );
+                        const typeInfo =
+                            accessibilityTypeLabels[
+                                feature.accessibilityType as AccessibilityType
+                            ];
+                        return (
+                            <button
+                                key={feature._id}
+                                type="button"
+                                onClick={() =>
+                                    addExistingFeature(
+                                        feature as {
+                                            _id: Id<'accessibilityFeatures'>;
+                                            name: string;
+                                            accessibilityType: AccessibilityType;
+                                        }
+                                    )
+                                }
+                                disabled={isSelected}
+                                className={`px-3 py-1.5 rounded-full text-sm border transition-all ${
+                                    isSelected
+                                        ? 'opacity-50 cursor-not-allowed border-[#3D3D4D] bg-[#242433]/50 text-[#9CA3AF]'
+                                        : `${typeInfo.color} hover:shadow-[0_0_10px_rgba(45,226,230,0.2)] cursor-pointer`
+                                }`}
+                            >
+                                {typeInfo.icon} {feature.name}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Selected features */}
+            {selectedFeatures.length > 0 && (
+                <div className="flex flex-col gap-2">
+                    <Label className="text-[#B9BBC7]">
+                        Selected Features ({selectedFeatures.length})
+                    </Label>
+                    <div className="flex flex-col gap-2">
+                        {selectedFeatures.map((feature, index) => {
+                            const typeInfo =
+                                accessibilityTypeLabels[
+                                    feature.accessibilityType
+                                ];
+                            return (
+                                <div
+                                    key={`${feature.name}-${index}`}
+                                    className={`flex items-center justify-between p-3 rounded-lg border ${typeInfo.color}`}
+                                >
+                                    <div className="flex items-center gap-2">
+                                        <span>{typeInfo.icon}</span>
+                                        <span className="font-medium">
+                                            {feature.name}
+                                        </span>
+                                        <Badge
+                                            variant="outline"
+                                            className="text-xs border-current/30"
+                                        >
+                                            {typeInfo.label}
+                                        </Badge>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex gap-0.5">
+                                            {[1, 2, 3, 4, 5].map((star) => (
+                                                <button
+                                                    key={star}
+                                                    type="button"
+                                                    onClick={() =>
+                                                        updateFeatureRating(
+                                                            index,
+                                                            star
+                                                        )
+                                                    }
+                                                    className={`text-lg transition-colors ${
+                                                        star <= feature.rating
+                                                            ? 'text-[#2DE2E6]'
+                                                            : 'text-[#3D3D4D] hover:text-[#2DE2E6]/60'
+                                                    }`}
+                                                >
+                                                    ★
+                                                </button>
+                                            ))}
+                                        </div>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeFeature(index)}
+                                            className="text-[#F9A8D4] hover:text-[#E61E8C] transition-colors ml-2"
+                                            aria-label={`Remove ${feature.name}`}
+                                        >
+                                            ✕
+                                        </button>
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            )}
+        </div>
+    );
+}
+
+// Tag Selector Component
+function TagSelector({
+    selectedTags,
+    onTagsChange
+}: {
+    selectedTags: Array<{
+        tagId?: Id<'tags'>;
+        name: string;
+        accessibilityType: AccessibilityType;
+    }>;
+    onTagsChange: (
+        tags: Array<{
+            tagId?: Id<'tags'>;
+            name: string;
+            accessibilityType: AccessibilityType;
+        }>
+    ) => void;
+}) {
+    const [searchQuery, setSearchQuery] = React.useState('');
+    const [selectedType, setSelectedType] = React.useState<
+        AccessibilityType | 'all'
+    >('all');
+    const [newTagName, setNewTagName] = React.useState('');
+    const [newTagType, setNewTagType] =
+        React.useState<AccessibilityType>('general');
+
+    // Fetch popular tags
+    const popularTags = useQuery(api.tags.getPopularTags, {
+        accessibilityType: selectedType !== 'all' ? selectedType : undefined,
+        limit: 20
+    });
+
+    // Search tags
+    const searchResults = useQuery(
+        api.tags.searchTags,
+        searchQuery.trim().length > 0
+            ? {
+                  searchQuery,
+                  accessibilityType:
+                      selectedType !== 'all' ? selectedType : undefined
+              }
+            : 'skip'
+    );
+
+    const displayTags = searchQuery.trim() ? searchResults : popularTags;
+
+    const addExistingTag = (tag: {
+        _id: Id<'tags'>;
+        name: string;
+        accessibilityType: AccessibilityType;
+    }) => {
+        if (
+            selectedTags.some(
+                (t) =>
+                    t.tagId === tag._id ||
+                    t.name.toLowerCase() === tag.name.toLowerCase()
+            )
+        ) {
+            return;
+        }
+        onTagsChange([
+            ...selectedTags,
+            {
+                tagId: tag._id,
+                name: tag.name,
+                accessibilityType: tag.accessibilityType
+            }
+        ]);
+    };
+
+    const addNewTag = () => {
+        if (!newTagName.trim()) return;
+        if (
+            selectedTags.some(
+                (t) => t.name.toLowerCase() === newTagName.trim().toLowerCase()
+            )
+        ) {
+            return;
+        }
+        onTagsChange([
+            ...selectedTags,
+            {
+                name: newTagName.trim(),
+                accessibilityType: newTagType
+            }
+        ]);
+        setNewTagName('');
+    };
+
+    const removeTag = (index: number) => {
+        onTagsChange(selectedTags.filter((_, i) => i !== index));
+    };
+
+    return (
+        <div className="flex flex-col gap-4">
+            <h3 className="font-medium text-[#F5F6FA]">Accessibility Tags</h3>
+
+            {/* Add new tag inline */}
+            <div className="flex gap-2">
+                <Input
+                    placeholder="Add a new tag..."
+                    value={newTagName}
+                    onChange={(e) => setNewTagName(e.target.value)}
+                    onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
+                            e.preventDefault();
+                            addNewTag();
+                        }
+                    }}
+                    className="flex-1 border-[#242433] bg-[#0B0B10] text-[#F5F6FA]"
+                />
+                <Select
+                    value={newTagType}
+                    onValueChange={(v) => setNewTagType(v as AccessibilityType)}
+                >
+                    <SelectTrigger className="w-[140px] border-[#242433] bg-[#0B0B10] text-[#F5F6FA]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        {Object.entries(accessibilityTypeLabels).map(
+                            ([type, { label, icon }]) => (
+                                <SelectItem key={type} value={type}>
+                                    {icon} {label}
+                                </SelectItem>
+                            )
+                        )}
+                    </SelectContent>
+                </Select>
+                <Button
+                    type="button"
+                    onClick={addNewTag}
+                    disabled={!newTagName.trim()}
+                    variant="outline"
+                    className="border-[#242433] text-[#F5F6FA] hover:border-[#2DE2E6]/50 hover:bg-[#2DE2E6]/5"
+                >
+                    Add
+                </Button>
+            </div>
+
+            {/* Search and filter */}
+            <div className="flex gap-2">
+                <Input
+                    placeholder="Search existing tags..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="flex-1 border-[#242433] bg-[#0B0B10] text-[#F5F6FA]"
+                />
+                <Select
+                    value={selectedType}
+                    onValueChange={(v) =>
+                        setSelectedType(v as AccessibilityType | 'all')
+                    }
+                >
+                    <SelectTrigger className="w-[140px] border-[#242433] bg-[#0B0B10] text-[#F5F6FA]">
+                        <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                        <SelectItem value="all">All Types</SelectItem>
+                        {Object.entries(accessibilityTypeLabels).map(
+                            ([type, { label, icon }]) => (
+                                <SelectItem key={type} value={type}>
+                                    {icon} {label}
+                                </SelectItem>
+                            )
+                        )}
+                    </SelectContent>
+                </Select>
+            </div>
+
+            {/* Tag suggestions */}
+            {displayTags && displayTags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {displayTags.map((tag) => {
+                        const isSelected = selectedTags.some(
+                            (t) =>
+                                t.tagId === tag._id ||
+                                t.name.toLowerCase() === tag.name.toLowerCase()
+                        );
+                        const typeInfo =
+                            accessibilityTypeLabels[
+                                tag.accessibilityType as AccessibilityType
+                            ];
+                        return (
+                            <button
+                                key={tag._id}
+                                type="button"
+                                onClick={() =>
+                                    addExistingTag(
+                                        tag as {
+                                            _id: Id<'tags'>;
+                                            name: string;
+                                            accessibilityType: AccessibilityType;
+                                        }
+                                    )
+                                }
+                                disabled={isSelected}
+                                className={`px-3 py-1 rounded-full text-sm border transition-all ${
+                                    isSelected
+                                        ? 'opacity-50 cursor-not-allowed border-[#3D3D4D] bg-[#242433]/50 text-[#9CA3AF]'
+                                        : `${typeInfo.color} hover:shadow-[0_0_10px_rgba(45,226,230,0.2)] cursor-pointer`
+                                }`}
+                            >
+                                {tag.name}
+                            </button>
+                        );
+                    })}
+                </div>
+            )}
+
+            {/* Selected tags */}
+            {selectedTags.length > 0 && (
+                <div className="flex flex-wrap gap-2">
+                    {selectedTags.map((tag, index) => {
+                        const typeInfo =
+                            accessibilityTypeLabels[tag.accessibilityType];
+                        return (
+                            <Badge
+                                key={`${tag.name}-${index}`}
+                                className={`${typeInfo.color} pr-1.5 cursor-pointer hover:shadow-[0_0_10px_rgba(45,226,230,0.2)]`}
+                                onClick={() => removeTag(index)}
+                            >
+                                {typeInfo.icon} {tag.name}
+                                <span className="ml-1.5 text-current/70 hover:text-current">
+                                    ✕
+                                </span>
+                            </Badge>
+                        );
+                    })}
+                </div>
+            )}
+        </div>
+    );
+}
+
 export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const { isSignedIn } = useUser();
     const createGame = useMutation(api.games.createGame);
@@ -70,6 +679,10 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const createService = useMutation(api.services.createService);
     const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
     const registerFile = useMutation(api.storage.registerFile);
+    const getOrCreateFeature = useMutation(api.features.getOrCreateFeature);
+    const setFeaturesForEntry = useMutation(api.features.setFeaturesForEntry);
+    const getOrCreateTag = useMutation(api.tags.getOrCreateTag);
+    const setTagsForEntry = useMutation(api.tags.setTagsForEntry);
 
     const [name, setName] = React.useState('');
     const [description, setDescription] = React.useState('');
@@ -87,7 +700,6 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const [cognitiveAccessibility, setCognitiveAccessibility] = React.useState<
         number | undefined
     >();
-    const [tagsInput, setTagsInput] = React.useState('');
     const [website, setWebsite] = React.useState('');
     const [platformsInput, setPlatformsInput] = React.useState('');
     const [isSubmitting, setIsSubmitting] = React.useState(false);
@@ -103,12 +715,24 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     const [country, setCountry] = React.useState('');
     const [placeType, setPlaceType] = React.useState('');
 
-    // Feature management
-    const [features, setFeatures] = React.useState<
-        Array<{ feature: string; description?: string; rating: number }>
+    // Feature management - now using the proper type with accessibility info
+    const [selectedFeatures, setSelectedFeatures] = React.useState<
+        Array<{
+            featureId?: Id<'accessibilityFeatures'>;
+            name: string;
+            accessibilityType: AccessibilityType;
+            rating: number;
+        }>
     >([]);
-    const [newFeature, setNewFeature] = React.useState('');
-    const [newFeatureRating, setNewFeatureRating] = React.useState(3);
+
+    // Tag management - now using the proper type with accessibility info
+    const [selectedTags, setSelectedTags] = React.useState<
+        Array<{
+            tagId?: Id<'tags'>;
+            name: string;
+            accessibilityType: AccessibilityType;
+        }>
+    >([]);
 
     // File upload state
     const [uploadedPhotos, setUploadedPhotos] = React.useState<
@@ -116,21 +740,6 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
     >([]);
     const [isUploading, setIsUploading] = React.useState(false);
     const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-    const addFeature = () => {
-        if (newFeature.trim()) {
-            setFeatures([
-                ...features,
-                { feature: newFeature.trim(), rating: newFeatureRating }
-            ]);
-            setNewFeature('');
-            setNewFeatureRating(3);
-        }
-    };
-
-    const removeFeature = (index: number) => {
-        setFeatures(features.filter((_, i) => i !== index));
-    };
 
     // File upload handlers
     const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -208,28 +817,54 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
         e.preventDefault();
         if (!name.trim() || !description.trim()) return;
 
-        const commonArgs = {
-            name: name.trim(),
-            description: description.trim(),
-            accessibilityFeatures: features,
-            overallRating,
-            visualAccessibility,
-            auditoryAccessibility,
-            motorAccessibility,
-            cognitiveAccessibility,
-            tags: tagsInput
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean),
-            website: website.trim() || undefined,
-            photos: uploadedPhotos.map((p) => p.storageId)
-        };
-
         setIsSubmitting(true);
         try {
+            // 1. Resolve all features (get existing or create new)
+            const resolvedFeatures = await Promise.all(
+                selectedFeatures.map(async (f) => {
+                    if (f.featureId)
+                        return { featureId: f.featureId, rating: f.rating };
+                    const featureDoc = await getOrCreateFeature({
+                        name: f.name,
+                        accessibilityType: f.accessibilityType
+                    });
+                    if (!featureDoc)
+                        throw new Error(`Failed to resolve feature: ${f.name}`);
+                    return { featureId: featureDoc._id, rating: f.rating };
+                })
+            );
+
+            // 2. Resolve all tags
+            const resolvedTagIds = await Promise.all(
+                selectedTags.map(async (t) => {
+                    if (t.tagId) return t.tagId;
+                    const tagDoc = await getOrCreateTag({
+                        name: t.name,
+                        accessibilityType: t.accessibilityType
+                    });
+                    if (!tagDoc)
+                        throw new Error(`Failed to resolve tag: ${t.name}`);
+                    return tagDoc._id;
+                })
+            );
+
+            const commonArgs = {
+                name: name.trim(),
+                description: description.trim(),
+                overallRating,
+                visualAccessibility,
+                auditoryAccessibility,
+                motorAccessibility,
+                cognitiveAccessibility,
+                website: website.trim() || undefined,
+                photos: uploadedPhotos.map((p) => p.storageId)
+            };
+
+            let entryId: string;
+
             switch (category) {
                 case 'game':
-                    await createGame({
+                    entryId = await createGame({
                         ...commonArgs,
                         platforms: platformsInput
                             .split(',')
@@ -238,7 +873,7 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                     });
                     break;
                 case 'hardware':
-                    await createHardware({
+                    entryId = await createHardware({
                         ...commonArgs,
                         manufacturer: manufacturer || undefined,
                         model: model || undefined,
@@ -246,7 +881,7 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                     });
                     break;
                 case 'place':
-                    await createPlace({
+                    entryId = await createPlace({
                         ...commonArgs,
                         location: {
                             address: address || undefined,
@@ -257,7 +892,7 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                     });
                     break;
                 case 'software':
-                    await createSoftware({
+                    entryId = await createSoftware({
                         ...commonArgs,
                         platforms: platformsInput
                             .split(',')
@@ -266,10 +901,29 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                     });
                     break;
                 case 'service':
-                    await createService({
+                    entryId = await createService({
                         ...commonArgs
                     });
                     break;
+                default:
+                    throw new Error(`Invalid category: ${category}`);
+            }
+
+            // 3. Link features and tags to the new entry
+            if (resolvedFeatures.length > 0) {
+                await setFeaturesForEntry({
+                    entryType: category,
+                    entryId,
+                    features: resolvedFeatures
+                });
+            }
+
+            if (resolvedTagIds.length > 0) {
+                await setTagsForEntry({
+                    entryType: category,
+                    entryId,
+                    tagIds: resolvedTagIds
+                });
             }
 
             // Reset form
@@ -281,7 +935,6 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
             setAuditoryAccessibility(undefined);
             setMotorAccessibility(undefined);
             setCognitiveAccessibility(undefined);
-            setTagsInput('');
             setWebsite('');
             setPlatformsInput('');
             setManufacturer('');
@@ -291,7 +944,8 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
             setCity('');
             setCountry('');
             setPlaceType('');
-            setFeatures([]);
+            setSelectedFeatures([]);
+            setSelectedTags([]);
             setUploadedPhotos([]);
 
             onSuccess?.();
@@ -459,63 +1113,20 @@ export function AddEntryForm({ onSuccess }: { onSuccess?: () => void }) {
                         </div>
                     </div>
 
-                    {/* Features */}
-                    <div className="flex flex-col gap-3">
-                        <h3 className="font-medium">Accessibility Features</h3>
-                        <div className="flex items-end gap-2">
-                            <div className="flex-1">
-                                <Label htmlFor="newFeature">Feature Name</Label>
-                                <Input
-                                    id="newFeature"
-                                    placeholder="e.g., Subtitles, Color Blind Mode"
-                                    value={newFeature}
-                                    onChange={(e) =>
-                                        setNewFeature(e.target.value)
-                                    }
-                                    onKeyDown={(e) => {
-                                        if (e.key === 'Enter') {
-                                            e.preventDefault();
-                                            addFeature();
-                                        }
-                                    }}
-                                />
-                            </div>
-                            <Button
-                                type="button"
-                                variant="outline"
-                                onClick={addFeature}
-                            >
-                                Add
-                            </Button>
-                        </div>
-                        {features.length > 0 && (
-                            <div className="flex flex-wrap gap-2">
-                                {features.map((f, i) => (
-                                    <Badge
-                                        key={i}
-                                        variant="secondary"
-                                        className="cursor-pointer pr-1.5"
-                                        onClick={() => removeFeature(i)}
-                                    >
-                                        {f.feature} ({f.rating}★) ✕
-                                    </Badge>
-                                ))}
-                            </div>
-                        )}
-                    </div>
+                    {/* Accessibility Features Section */}
+                    <FeatureSelector
+                        selectedFeatures={selectedFeatures}
+                        onFeaturesChange={setSelectedFeatures}
+                    />
+
+                    {/* Accessibility Tags Section */}
+                    <TagSelector
+                        selectedTags={selectedTags}
+                        onTagsChange={setSelectedTags}
+                    />
 
                     {/* Additional Info */}
                     <div className="flex flex-col gap-4">
-                        <div className="flex flex-col gap-2">
-                            <Label htmlFor="tags">Tags (comma-separated)</Label>
-                            <Input
-                                id="tags"
-                                placeholder="e.g., blind-friendly, screen-reader, subtitles"
-                                value={tagsInput}
-                                onChange={(e) => setTagsInput(e.target.value)}
-                            />
-                        </div>
-
                         <div className="flex flex-col gap-2">
                             <Label htmlFor="website">Website (optional)</Label>
                             <Input
