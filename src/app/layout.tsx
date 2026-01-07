@@ -17,36 +17,38 @@ export default function RootLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ClerkProvider>
-            <ConvexClientProvider>
-                <Analytics />
-                <html lang="en" className="dark">
-                    <head>
-                        {/* Preload critical Latin font to reduce LCP latency (~156ms savings) */}
-                        <link
-                            rel="preload"
-                            href="/fonts/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2"
-                            as="font"
-                            type="font/woff2"
-                            crossOrigin="anonymous"
-                        />
-                        {/* DNS prefetch for Clerk to reduce connection time */}
-                        <link
-                            rel="dns-prefetch"
-                            href="https://clerk.accounts.dev"
-                        />
-                        <link
-                            rel="preconnect"
-                            href="https://clerk.accounts.dev"
-                            crossOrigin="anonymous"
-                        />
-                    </head>
-                    <body className="bg-[#0B0B10] text-[#F5F6FA] antialiased">
-                        <AuthHeader />
-                        <main className="pt-16">{children}</main>
-                    </body>
-                </html>
-            </ConvexClientProvider>
-        </ClerkProvider>
+        <main>
+            <ClerkProvider>
+                <ConvexClientProvider>
+                    <Analytics />
+                    <html lang="en" className="dark">
+                        <head>
+                            {/* Preload critical Latin font to reduce LCP latency (~156ms savings) */}
+                            <link
+                                rel="preload"
+                                href="/fonts/UcC73FwrK3iLTeHuS_nVMrMxCp50SjIa1ZL7W0Q5nw.woff2"
+                                as="font"
+                                type="font/woff2"
+                                crossOrigin="anonymous"
+                            />
+                            {/* DNS prefetch for Clerk to reduce connection time */}
+                            <link
+                                rel="dns-prefetch"
+                                href="https://clerk.accounts.dev"
+                            />
+                            <link
+                                rel="preconnect"
+                                href="https://clerk.accounts.dev"
+                                crossOrigin="anonymous"
+                            />
+                        </head>
+                        <body className="bg-[#0B0B10] text-[#F5F6FA] antialiased">
+                            <AuthHeader />
+                            <main className="pt-16">{children}</main>
+                        </body>
+                    </html>
+                </ConvexClientProvider>
+            </ClerkProvider>
+        </main>
     );
 }
