@@ -316,18 +316,18 @@ export const getEntry = query({
 /**
  * Checks if an entry is complete based on its category and fields.
  * An entry is complete if all required fields are filled and it has at least one photo.
+ * Note: Tags and accessibility features are now managed through separate junction tables
+ * and are not checked here - they can be added/modified independently.
  */
 export function isEntryComplete(entry: any, category: Category): boolean {
     const commonRequired = [
         entry.name,
         entry.description,
-        entry.accessibilityFeatures,
         entry.overallRating,
         entry.visualAccessibility,
         entry.auditoryAccessibility,
         entry.motorAccessibility,
         entry.cognitiveAccessibility,
-        entry.tags,
         entry.website
     ];
 

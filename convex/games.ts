@@ -48,23 +48,17 @@ export const getGame = query({
 });
 
 // Create a new game
+// Note: Tags and accessibility features are now managed through separate junction tables
+// Use tags.addTagToEntry and features.addFeatureToEntry after creating the game
 export const createGame = mutation({
     args: {
         name: v.string(),
         description: v.string(),
-        accessibilityFeatures: v.array(
-            v.object({
-                feature: v.string(),
-                description: v.optional(v.string()),
-                rating: v.number()
-            })
-        ),
         overallRating: v.number(),
         visualAccessibility: v.optional(v.number()),
         auditoryAccessibility: v.optional(v.number()),
         motorAccessibility: v.optional(v.number()),
         cognitiveAccessibility: v.optional(v.number()),
-        tags: v.array(v.string()),
         website: v.optional(v.string()),
         photos: v.optional(v.array(v.id('_storage'))),
         // Game-specific fields
@@ -98,26 +92,18 @@ export const createGame = mutation({
 });
 
 // Update a game
+// Note: Tags and accessibility features are now managed through separate junction tables
+// Use tags.setTagsForEntry and features.setFeaturesForEntry to update them
 export const updateGame = mutation({
     args: {
         id: v.id('games'),
         name: v.optional(v.string()),
         description: v.optional(v.string()),
-        accessibilityFeatures: v.optional(
-            v.array(
-                v.object({
-                    feature: v.string(),
-                    description: v.optional(v.string()),
-                    rating: v.number()
-                })
-            )
-        ),
         overallRating: v.optional(v.number()),
         visualAccessibility: v.optional(v.number()),
         auditoryAccessibility: v.optional(v.number()),
         motorAccessibility: v.optional(v.number()),
         cognitiveAccessibility: v.optional(v.number()),
-        tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
         photos: v.optional(v.array(v.id('_storage'))),
         platforms: v.optional(v.array(v.string())),

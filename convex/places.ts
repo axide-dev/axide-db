@@ -54,23 +54,17 @@ export const getPlace = query({
 });
 
 // Create a new place
+// Note: Tags and accessibility features are now managed through separate junction tables
+// Use tags.addTagToEntry and features.addFeatureToEntry after creating the place
 export const createPlace = mutation({
     args: {
         name: v.string(),
         description: v.string(),
-        accessibilityFeatures: v.array(
-            v.object({
-                feature: v.string(),
-                description: v.optional(v.string()),
-                rating: v.number()
-            })
-        ),
         overallRating: v.number(),
         visualAccessibility: v.optional(v.number()),
         auditoryAccessibility: v.optional(v.number()),
         motorAccessibility: v.optional(v.number()),
         cognitiveAccessibility: v.optional(v.number()),
-        tags: v.array(v.string()),
         website: v.optional(v.string()),
         photos: v.optional(v.array(v.id('_storage'))),
         // Place-specific fields
@@ -110,26 +104,18 @@ export const createPlace = mutation({
 });
 
 // Update a place
+// Note: Tags and accessibility features are now managed through separate junction tables
+// Use tags.setTagsForEntry and features.setFeaturesForEntry to update them
 export const updatePlace = mutation({
     args: {
         id: v.id('places'),
         name: v.optional(v.string()),
         description: v.optional(v.string()),
-        accessibilityFeatures: v.optional(
-            v.array(
-                v.object({
-                    feature: v.string(),
-                    description: v.optional(v.string()),
-                    rating: v.number()
-                })
-            )
-        ),
         overallRating: v.optional(v.number()),
         visualAccessibility: v.optional(v.number()),
         auditoryAccessibility: v.optional(v.number()),
         motorAccessibility: v.optional(v.number()),
         cognitiveAccessibility: v.optional(v.number()),
-        tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
         photos: v.optional(v.array(v.id('_storage'))),
         location: v.optional(

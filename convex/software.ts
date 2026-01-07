@@ -48,23 +48,17 @@ export const getSoftwareItem = query({
 });
 
 // Create a new software entry
+// Note: Tags and accessibility features are now managed through separate junction tables
+// Use tags.addTagToEntry and features.addFeatureToEntry after creating the software
 export const createSoftware = mutation({
     args: {
         name: v.string(),
         description: v.string(),
-        accessibilityFeatures: v.array(
-            v.object({
-                feature: v.string(),
-                description: v.optional(v.string()),
-                rating: v.number()
-            })
-        ),
         overallRating: v.number(),
         visualAccessibility: v.optional(v.number()),
         auditoryAccessibility: v.optional(v.number()),
         motorAccessibility: v.optional(v.number()),
         cognitiveAccessibility: v.optional(v.number()),
-        tags: v.array(v.string()),
         website: v.optional(v.string()),
         photos: v.optional(v.array(v.id('_storage'))),
         // Software-specific fields
@@ -100,26 +94,18 @@ export const createSoftware = mutation({
 });
 
 // Update software
+// Note: Tags and accessibility features are now managed through separate junction tables
+// Use tags.setTagsForEntry and features.setFeaturesForEntry to update them
 export const updateSoftware = mutation({
     args: {
         id: v.id('software'),
         name: v.optional(v.string()),
         description: v.optional(v.string()),
-        accessibilityFeatures: v.optional(
-            v.array(
-                v.object({
-                    feature: v.string(),
-                    description: v.optional(v.string()),
-                    rating: v.number()
-                })
-            )
-        ),
         overallRating: v.optional(v.number()),
         visualAccessibility: v.optional(v.number()),
         auditoryAccessibility: v.optional(v.number()),
         motorAccessibility: v.optional(v.number()),
         cognitiveAccessibility: v.optional(v.number()),
-        tags: v.optional(v.array(v.string())),
         website: v.optional(v.string()),
         photos: v.optional(v.array(v.id('_storage'))),
         platforms: v.optional(v.array(v.string())),
