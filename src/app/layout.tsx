@@ -41,7 +41,7 @@ export default function RootLayout({
                     </head>
                     <body className="bg-[#0B0B10] text-[#F5F6FA] antialiased">
                         <AuthHeader />
-                        <div className="pt-16">{children}</div>
+                        <main className="pt-16">{children}</main>
                     </body>
                 </html>
             </ConvexClientProvider>

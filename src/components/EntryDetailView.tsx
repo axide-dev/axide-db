@@ -90,7 +90,7 @@ function AccessibilityRatingBar({
                         {label}
                     </span>
                     <span
-                        className={`text-sm ${isUnknown ? 'text-[#B9BBC7]/60 italic' : 'text-[#B9BBC7]'}`}
+                        className={`text-sm ${isUnknown ? 'text-[#9CA3AF] italic' : 'text-[#B9BBC7]'}`}
                     >
                         {isUnknown ? 'Unknown' : `${value}/5`}
                     </span>
@@ -401,7 +401,7 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                     )}
 
                     {/* Metadata */}
-                    <div className="border-t border-[#242433] pt-4 text-xs text-[#B9BBC7]/60">
+                    <div className="border-t border-[#242433] pt-4 text-xs text-[#9CA3AF]">
                         Added on{' '}
                         {new Date(entry.createdAt).toLocaleDateString('en-US', {
                             year: 'numeric',

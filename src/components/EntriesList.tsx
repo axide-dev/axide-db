@@ -154,7 +154,7 @@ function EntryCard({ entry }: { entry: AnyEntry }) {
                     {'platforms' in entry &&
                         entry.platforms &&
                         (entry.platforms as string[]).length > 0 && (
-                            <div className="text-xs text-[#B9BBC7]/60">
+                            <div className="text-xs text-[#9CA3AF]">
                                 Platforms:{' '}
                                 {(entry.platforms as string[]).join(', ')}
                             </div>

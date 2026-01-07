@@ -3,7 +3,7 @@ import { Button } from '~/components/ui/button';
 
 export default function EntryNotFound() {
     return (
-        <main className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
+        <div className="flex min-h-screen flex-col items-center justify-center px-4 py-8">
             <div className="flex flex-col items-center gap-6 text-center">
                 {/* Decorative 404 */}
                 <div className="relative">
@@ -31,6 +31,6 @@ export default function EntryNotFound() {
                     </Button>
                 </Link>
             </div>
-        </main>
+        </div>
     );
 }

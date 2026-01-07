@@ -3,7 +3,7 @@ import { SkeletonCounter, SkeletonEntriesGrid } from '~/components/ui/skeleton';
 
 export default function Loading() {
     return (
-        <main className="flex min-h-screen flex-col items-center px-4 py-12 sm:px-8">
+        <div className="flex min-h-screen flex-col items-center px-4 py-12 sm:px-8">
             {/* Hero Section */}
             <header className="relative mb-16 flex flex-col items-center gap-8 text-center">
                 {/* Decorative diagonal line */}
@@ -53,6 +53,6 @@ export default function Loading() {
                     more accessible, one entry at a time.
                 </p>
             </footer>
-        </main>
+        </div>
     );
 }

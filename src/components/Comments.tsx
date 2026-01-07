@@ -216,7 +216,7 @@ export function Comments({ entryId, entryName, entryType }: CommentsProps) {
                                         <span className="text-sm font-medium text-[#F5F6FA]">
                                             {comment.userName ?? 'Anonymous'}
                                         </span>
-                                        <span className="text-xs text-[#B9BBC7]/60">
+                                        <span className="text-xs text-[#9CA3AF]">
                                             {formatDate(comment.createdAt)}
                                         </span>
                                         {comment.updatedAt && (

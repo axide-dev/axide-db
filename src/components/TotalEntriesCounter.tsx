@@ -122,7 +122,7 @@ export function TotalEntriesCounter() {
             </div>
 
             {/* Live indicator */}
-            <div className="flex items-center gap-2 text-sm text-[#B9BBC7]/60">
+            <div className="flex items-center gap-2 text-sm text-[#9CA3AF]">
                 <span className="relative flex h-2 w-2">
                     <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-[#5EF0B6] opacity-75" />
                     <span className="relative inline-flex h-2 w-2 rounded-full bg-[#5EF0B6]" />
