@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256">
+  <!-- Page arrière (la plus reculée) -->
+  <rect x="56" y="32" width="160" height="200" rx="8" fill="#0B0B10" stroke="#242433" stroke-width="4"/>
+
+  <!-- Page milieu -->
+  <rect x="40" y="40" width="160" height="200" rx="8" fill="#12121A" stroke="#242433" stroke-width="4"/>
+
+  <!-- Page avant (la plus proche) -->
+  <rect x="24" y="48" width="160" height="200" rx="8" fill="#12121A" stroke="#2DE2E6" stroke-width="6"/>
+
+  <!-- Lignes de texte simulées sur la page avant -->
+  <line x1="48" y1="88" x2="144" y2="88" stroke="#B9BBC7" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+  <line x1="48" y1="120" x2="160" y2="120" stroke="#B9BBC7" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+  <line x1="48" y1="152" x2="128" y2="152" stroke="#B9BBC7" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+  <line x1="48" y1="184" x2="152" y2="184" stroke="#B9BBC7" stroke-width="8" stroke-linecap="round" opacity="0.4"/>
+
+  <!-- Petit accent cyan (signet) -->
+  <rect x="24" y="48" width="16" height="48" rx="4" fill="#2DE2E6" opacity="0.8"/>
+</svg>
