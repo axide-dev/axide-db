@@ -8,32 +8,36 @@
  * @module
  */
 
-import type * as comments from '../comments.js';
-import type * as entries from '../entries.js';
-import type * as games from '../games.js';
-import type * as hardware from '../hardware.js';
-import type * as places from '../places.js';
-import type * as reviews from '../reviews.js';
-import type * as services from '../services.js';
-import type * as software from '../software.js';
-import type * as storage from '../storage.js';
+import type * as comments from "../comments.js";
+import type * as entries from "../entries.js";
+import type * as features from "../features.js";
+import type * as games from "../games.js";
+import type * as hardware from "../hardware.js";
+import type * as places from "../places.js";
+import type * as reviews from "../reviews.js";
+import type * as services from "../services.js";
+import type * as software from "../software.js";
+import type * as storage from "../storage.js";
+import type * as tags from "../tags.js";
 
 import type {
-    ApiFromModules,
-    FilterApi,
-    FunctionReference
-} from 'convex/server';
+  ApiFromModules,
+  FilterApi,
+  FunctionReference,
+} from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-    comments: typeof comments;
-    entries: typeof entries;
-    games: typeof games;
-    hardware: typeof hardware;
-    places: typeof places;
-    reviews: typeof reviews;
-    services: typeof services;
-    software: typeof software;
-    storage: typeof storage;
+  comments: typeof comments;
+  entries: typeof entries;
+  features: typeof features;
+  games: typeof games;
+  hardware: typeof hardware;
+  places: typeof places;
+  reviews: typeof reviews;
+  services: typeof services;
+  software: typeof software;
+  storage: typeof storage;
+  tags: typeof tags;
 }>;
 
 /**
@@ -45,8 +49,8 @@ declare const fullApi: ApiFromModules<{
  * ```
  */
 export declare const api: FilterApi<
-    typeof fullApi,
-    FunctionReference<any, 'public'>
+  typeof fullApi,
+  FunctionReference<any, "public">
 >;
 
 /**
@@ -58,8 +62,8 @@ export declare const api: FilterApi<
  * ```
  */
 export declare const internal: FilterApi<
-    typeof fullApi,
-    FunctionReference<any, 'internal'>
+  typeof fullApi,
+  FunctionReference<any, "internal">
 >;
 
 export declare const components: {};
