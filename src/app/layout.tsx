@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { ClerkProvider } from '@clerk/nextjs';
+import { Analytics } from '@vercel/analytics/next';
 import '~/styles/globals.css';
 import ConvexClientProvider from '~/components/ConvexClientProvider';
 import AuthHeader from '~/components/AuthHeader';
@@ -18,6 +19,7 @@ export default function RootLayout({
     return (
         <ClerkProvider>
             <ConvexClientProvider>
+                <Analytics />
                 <html lang="en" className="dark">
                     <head>
                         {/* Preload critical Latin font to reduce LCP latency (~156ms savings) */}
