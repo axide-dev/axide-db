@@ -126,12 +126,7 @@ interface AccessibilityEntry {
     auditoryAccessibility?: number;
     motorAccessibility?: number;
     cognitiveAccessibility?: number;
-    tags: string[];
-    accessibilityFeatures: Array<{
-        feature: string;
-        description?: string;
-        rating: number;
-    }>;
+    // tags and accessibilityFeatures are now fetched from junction tables
     platforms?: string[];
 }
 
@@ -291,27 +286,7 @@ export function AccessibilitySearch({
                                     }
                                 />
 
-                                {entry.tags.length > 0 && (
-                                    <div className="flex flex-wrap gap-1">
-                                        {entry.tags.slice(0, 3).map((tag) => (
-                                            <Badge
-                                                key={tag}
-                                                variant="secondary"
-                                                className="text-xs"
-                                            >
-                                                {tag}
-                                            </Badge>
-                                        ))}
-                                        {entry.tags.length > 3 && (
-                                            <Badge
-                                                variant="secondary"
-                                                className="text-xs"
-                                            >
-                                                +{entry.tags.length - 3}
-                                            </Badge>
-                                        )}
-                                    </div>
-                                )}
+                                {/* Tags are now fetched from junction tables - use getTagsForEntry query */}
 
                                 {entry.platforms &&
                                     entry.platforms.length > 0 && (

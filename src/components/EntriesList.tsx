@@ -149,27 +149,7 @@ function EntryCard({ entry }: { entry: AnyEntry }) {
                         }
                     />
 
-                    {entry.tags.length > 0 && (
-                        <div className="flex flex-wrap gap-1">
-                            {entry.tags.slice(0, 3).map((tag: string) => (
-                                <Badge
-                                    key={tag}
-                                    variant="secondary"
-                                    className="text-xs bg-[#242433] text-[#B9BBC7] border-transparent"
-                                >
-                                    {tag}
-                                </Badge>
-                            ))}
-                            {entry.tags.length > 3 && (
-                                <Badge
-                                    variant="secondary"
-                                    className="text-xs bg-[#242433] text-[#B9BBC7]"
-                                >
-                                    +{entry.tags.length - 3}
-                                </Badge>
-                            )}
-                        </div>
-                    )}
+                    {/* Tags are now fetched from junction tables - use getTagsForEntry query */}
 
                     {'platforms' in entry &&
                         entry.platforms &&

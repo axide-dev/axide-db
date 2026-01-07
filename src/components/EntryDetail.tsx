@@ -233,42 +233,9 @@ export function EntryDetail({ entryId, onBack }: EntryDetailProps) {
                         </div>
                     </div>
 
-                    {/* Accessibility Features */}
-                    {entry.accessibilityFeatures.length > 0 && (
-                        <div>
-                            <h3 className="mb-3 font-medium">
-                                Accessibility Features
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {entry.accessibilityFeatures.map(
-                                    (feature, index) => (
-                                        <Badge
-                                            key={index}
-                                            variant="secondary"
-                                            className="text-sm"
-                                        >
-                                            {feature.feature} ({feature.rating}
-                                            ★)
-                                        </Badge>
-                                    )
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    {/* Accessibility Features - now fetched from junction tables via getFeaturesForEntry query */}
 
-                    {/* Tags */}
-                    {entry.tags.length > 0 && (
-                        <div>
-                            <h3 className="mb-3 font-medium">Tags</h3>
-                            <div className="flex flex-wrap gap-2">
-                                {entry.tags.map((tag) => (
-                                    <Badge key={tag} variant="outline">
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* Tags - now fetched from junction tables via getTagsForEntry query */}
 
                     {/* Platforms (for games/software) */}
                     {'platforms' in entry &&

@@ -131,12 +131,7 @@ interface AnyEntry {
     auditoryAccessibility?: number;
     motorAccessibility?: number;
     cognitiveAccessibility?: number;
-    tags: string[];
-    accessibilityFeatures: Array<{
-        feature: string;
-        description?: string;
-        rating: number;
-    }>;
+    // tags and accessibilityFeatures are now fetched from junction tables
     website?: string;
     createdAt: number;
     updatedAt: number;
@@ -346,48 +341,9 @@ export function EntryDetailView({ entry }: EntryDetailViewProps) {
                         </div>
                     </div>
 
-                    {/* Accessibility Features */}
-                    {entry.accessibilityFeatures.length > 0 && (
-                        <div>
-                            <h3 className="mb-3 font-medium text-[#F5F6FA]">
-                                Accessibility Features
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {entry.accessibilityFeatures.map(
-                                    (feature, index) => (
-                                        <Badge
-                                            key={index}
-                                            variant="secondary"
-                                            className="text-sm bg-[#2DE2E6]/10 text-[#2DE2E6] border border-[#2DE2E6]/30"
-                                        >
-                                            {feature.feature} ({feature.rating}
-                                            ★)
-                                        </Badge>
-                                    )
-                                )}
-                            </div>
-                        </div>
-                    )}
+                    {/* Accessibility Features - now fetched from junction tables via getFeaturesForEntry query */}
 
-                    {/* Tags */}
-                    {entry.tags.length > 0 && (
-                        <div>
-                            <h3 className="mb-3 font-medium text-[#F5F6FA]">
-                                Tags
-                            </h3>
-                            <div className="flex flex-wrap gap-2">
-                                {entry.tags.map((tag) => (
-                                    <Badge
-                                        key={tag}
-                                        variant="outline"
-                                        className="border-[#242433] text-[#B9BBC7]"
-                                    >
-                                        {tag}
-                                    </Badge>
-                                ))}
-                            </div>
-                        </div>
-                    )}
+                    {/* Tags - now fetched from junction tables via getTagsForEntry query */}
 
                     {/* Platforms (for games/software) */}
                     {entry.platforms && entry.platforms.length > 0 && (
