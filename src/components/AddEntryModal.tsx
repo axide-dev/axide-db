@@ -25,6 +25,13 @@ import { Card, CardContent } from '~/components/ui/card';
 
 type Category = 'game' | 'hardware' | 'place' | 'software' | 'service';
 
+type AccessibilityType =
+    | 'visual'
+    | 'auditory'
+    | 'motor'
+    | 'cognitive'
+    | 'general';
+
 const CATEGORIES: { value: Category; label: string; icon: string }[] = [
     { value: 'game', label: 'Game', icon: '🎮' },
     { value: 'hardware', label: 'Hardware', icon: '🖥️' },
@@ -190,6 +197,10 @@ export function AddEntryModal({
     const createService = useMutation(api.services.createService);
     const generateUploadUrl = useMutation(api.storage.generateUploadUrl);
     const registerFile = useMutation(api.storage.registerFile);
+    const getOrCreateFeature = useMutation(api.features.getOrCreateFeature);
+    const setFeaturesForEntry = useMutation(api.features.setFeaturesForEntry);
+    const getOrCreateTag = useMutation(api.tags.getOrCreateTag);
+    const setTagsForEntry = useMutation(api.tags.setTagsForEntry);
 
     const [open, setOpen] = React.useState(false);
     const [step, setStep] = React.useState(1);
@@ -382,29 +393,60 @@ export function AddEntryModal({
     const handleSubmit = async () => {
         if (!name.trim() || !description.trim() || !category) return;
 
-        const commonArgs = {
-            name: name.trim(),
-            description: description.trim(),
-            accessibilityFeatures: features,
-            overallRating,
-            visualAccessibility,
-            auditoryAccessibility,
-            motorAccessibility,
-            cognitiveAccessibility,
-            tags: tagsInput
-                .split(',')
-                .map((t) => t.trim())
-                .filter(Boolean),
-            website: website.trim() || undefined,
-            photos: uploadedPhotos.map((p) => p.storageId as Id<'_storage'>)
-        };
-
         setIsSubmitting(true);
         try {
+            // 1. Resolve all features (get existing or create new)
+            // Default to 'general' type as the current modal doesn't have type selection
+            const resolvedFeatures = await Promise.all(
+                features.map(async (f) => {
+                    const featureDoc = await getOrCreateFeature({
+                        name: f.feature.trim(),
+                        accessibilityType: 'general'
+                    });
+                    if (!featureDoc)
+                        throw new Error(
+                            `Failed to resolve feature: ${f.feature}`
+                        );
+                    return { featureId: featureDoc._id, rating: f.rating };
+                })
+            );
+
+            // 2. Resolve all tags
+            const tagNames = tagsInput
+                .split(',')
+                .map((t) => t.trim())
+                .filter(Boolean);
+            const resolvedTagIds = await Promise.all(
+                tagNames.map(async (tagName) => {
+                    const tagDoc = await getOrCreateTag({
+                        name: tagName,
+                        accessibilityType: 'general'
+                    });
+                    if (!tagDoc)
+                        throw new Error(`Failed to resolve tag: ${tagName}`);
+                    return tagDoc._id;
+                })
+            );
+
+            // Base arguments for the entry creation
+            const entryArgs = {
+                name: name.trim(),
+                description: description.trim(),
+                overallRating,
+                visualAccessibility,
+                auditoryAccessibility,
+                motorAccessibility,
+                cognitiveAccessibility,
+                website: website.trim() || undefined,
+                photos: uploadedPhotos.map((p) => p.storageId as Id<'_storage'>)
+            };
+
+            let entryId: string;
+
             switch (category) {
                 case 'game':
-                    await createGame({
-                        ...commonArgs,
+                    entryId = await createGame({
+                        ...entryArgs,
                         platforms: platformsInput
                             .split(',')
                             .map((p) => p.trim())
@@ -412,16 +454,16 @@ export function AddEntryModal({
                     });
                     break;
                 case 'hardware':
-                    await createHardware({
-                        ...commonArgs,
+                    entryId = await createHardware({
+                        ...entryArgs,
                         manufacturer: manufacturer || undefined,
                         model: model || undefined,
                         productType: productType || undefined
                     });
                     break;
                 case 'place':
-                    await createPlace({
-                        ...commonArgs,
+                    entryId = await createPlace({
+                        ...entryArgs,
                         location: {
                             address: address || undefined,
                             city: city || undefined,
@@ -431,8 +473,8 @@ export function AddEntryModal({
                     });
                     break;
                 case 'software':
-                    await createSoftware({
-                        ...commonArgs,
+                    entryId = await createSoftware({
+                        ...entryArgs,
                         platforms: platformsInput
                             .split(',')
                             .map((p) => p.trim())
@@ -440,10 +482,29 @@ export function AddEntryModal({
                     });
                     break;
                 case 'service':
-                    await createService({
-                        ...commonArgs
+                    entryId = await createService({
+                        ...entryArgs
                     });
                     break;
+                default:
+                    throw new Error(`Invalid category: ${category}`);
+            }
+
+            // 3. Link features and tags to the new entry
+            if (resolvedFeatures.length > 0) {
+                await setFeaturesForEntry({
+                    entryType: category,
+                    entryId,
+                    features: resolvedFeatures
+                });
+            }
+
+            if (resolvedTagIds.length > 0) {
+                await setTagsForEntry({
+                    entryType: category,
+                    entryId,
+                    tagIds: resolvedTagIds
+                });
             }
 
             resetForm();

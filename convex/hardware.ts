@@ -65,7 +65,10 @@ export const createHardware = mutation({
         manufacturer: v.optional(v.string()),
         model: v.optional(v.string()),
         productType: v.optional(v.string()),
-        compatibility: v.optional(v.array(v.string()))
+        compatibility: v.optional(v.array(v.string())),
+        // Legacy fields for backward compatibility
+        accessibilityFeatures: v.optional(v.array(v.any())),
+        tags: v.optional(v.array(v.string()))
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -73,7 +76,7 @@ export const createHardware = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
-        const { photos, ...rest } = args;
+        const { photos, accessibilityFeatures, tags, ...rest } = args;
         const now = Date.now();
         const newHardware = {
             ...rest,

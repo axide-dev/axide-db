@@ -72,7 +72,10 @@ export const createService = mutation({
         provider: v.optional(v.string()),
         availability: v.optional(v.array(v.string())),
         hasAccessibleSupport: v.optional(v.boolean()),
-        hasSignLanguageSupport: v.optional(v.boolean())
+        hasSignLanguageSupport: v.optional(v.boolean()),
+        // Legacy fields for backward compatibility
+        accessibilityFeatures: v.optional(v.array(v.any())),
+        tags: v.optional(v.array(v.string()))
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -80,7 +83,7 @@ export const createService = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
-        const { photos, ...rest } = args;
+        const { photos, accessibilityFeatures, tags, ...rest } = args;
         const now = Date.now();
         const newService = {
             ...rest,

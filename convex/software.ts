@@ -68,7 +68,10 @@ export const createSoftware = mutation({
         softwareType: v.optional(v.string()),
         hasScreenReaderSupport: v.optional(v.boolean()),
         hasKeyboardNavigation: v.optional(v.boolean()),
-        hasHighContrastMode: v.optional(v.boolean())
+        hasHighContrastMode: v.optional(v.boolean()),
+        // Legacy fields for backward compatibility
+        accessibilityFeatures: v.optional(v.array(v.any())),
+        tags: v.optional(v.array(v.string()))
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -76,7 +79,7 @@ export const createSoftware = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
-        const { photos, ...rest } = args;
+        const { photos, accessibilityFeatures, tags, ...rest } = args;
         const now = Date.now();
         const newSoftware = {
             ...rest,

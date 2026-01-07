@@ -78,7 +78,10 @@ export const createPlace = mutation({
         placeType: v.optional(v.string()),
         wheelchairAccessible: v.optional(v.boolean()),
         hasAccessibleParking: v.optional(v.boolean()),
-        hasAccessibleRestroom: v.optional(v.boolean())
+        hasAccessibleRestroom: v.optional(v.boolean()),
+        // Legacy fields for backward compatibility
+        accessibilityFeatures: v.optional(v.array(v.any())),
+        tags: v.optional(v.array(v.string()))
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -86,7 +89,7 @@ export const createPlace = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
-        const { photos, ...rest } = args;
+        const { photos, accessibilityFeatures, tags, ...rest } = args;
         const now = Date.now();
         const newPlace = {
             ...rest,

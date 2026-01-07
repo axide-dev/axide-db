@@ -66,7 +66,10 @@ export const createGame = mutation({
         publisher: v.optional(v.string()),
         developer: v.optional(v.string()),
         releaseYear: v.optional(v.number()),
-        genres: v.optional(v.array(v.string()))
+        genres: v.optional(v.array(v.string())),
+        // Legacy fields for backward compatibility
+        accessibilityFeatures: v.optional(v.array(v.any())),
+        tags: v.optional(v.array(v.string()))
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -74,7 +77,7 @@ export const createGame = mutation({
             throw new Error('You must be logged in to create an entry');
         }
 
-        const { photos, ...rest } = args;
+        const { photos, accessibilityFeatures, tags, ...rest } = args;
         const now = Date.now();
         const newGame = {
             ...rest,
@@ -110,7 +113,10 @@ export const updateGame = mutation({
         publisher: v.optional(v.string()),
         developer: v.optional(v.string()),
         releaseYear: v.optional(v.number()),
-        genres: v.optional(v.array(v.string()))
+        genres: v.optional(v.array(v.string())),
+        // Legacy fields for backward compatibility
+        accessibilityFeatures: v.optional(v.array(v.any())),
+        tags: v.optional(v.array(v.string()))
     },
     handler: async (ctx, args) => {
         const identity = await ctx.auth.getUserIdentity();
@@ -118,7 +124,7 @@ export const updateGame = mutation({
             throw new Error('You must be logged in to update an entry');
         }
 
-        const { id, ...updates } = args;
+        const { id, accessibilityFeatures, tags, ...updates } = args;
         const existing = await ctx.db.get(id);
         if (!existing) {
             throw new Error('Game not found');
