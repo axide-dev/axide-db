@@ -48,12 +48,6 @@ const config = {
     compiler: {
         // Remove console.log in production
         removeConsole: process.env.NODE_ENV === 'production'
-    },
-    // Reduce JavaScript bundle size
-    modularizeImports: {
-        '@hugeicons/react': {
-            transform: '@hugeicons/react/{{member}}'
-        }
     }
 };
 
